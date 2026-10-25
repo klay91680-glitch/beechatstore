@@ -42,9 +42,7 @@
         .section-title { font-size: 16px; font-weight: 500; padding: 15px 20px 10px; color: #202124; }
         .app-item { display: flex; align-items: center; padding: 12px 20px; gap: 16px; }
         
-        /* App အမျိုးအစားအလိုက် Icon အရောင် */
         .app-icon { width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-        .icon-default { background: #1a73e8; color: #fff; }
         .icon-white { background: #ffffff; border: 2px solid #ccc; color: #000; }
         .icon-red { background: #e53935; color: #fff; }
         .icon-yellow-cup { background: #fdd835; color: #000; }
@@ -62,7 +60,6 @@
         .action-btn:active { background: #1557b0; }
         .action-btn.installed { background: #e8f0fe; color: #1a73e8; font-weight: 600; border: 1px solid #1a73e8; }
 
-        /* ရှာဖွေလို့ မတွေ့ရင် ပြမယ့် စာသား */
         .no-result { display: none; text-align: center; padding: 40px 20px; color: #5f6368; font-size: 15px; }
 
         /* Bottom Navigation */
@@ -78,12 +75,6 @@
         .profile-img-empty { width: 100px; height: 100px; background: #f1f3f4; color: #9aa0a6; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin: 0 auto 20px; }
         .profile-img-empty .material-symbols-outlined { font-size: 60px; }
         
-        /* Login Modal */
-        .login-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; text-align: center; width: 80%; max-width: 300px; }
-        .login-box h3 { margin-bottom: 20px; font-size: 18px; }
-        .login-box button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px;}
-        
         #main-content { display: block; }
         #main-content.hidden { display: none; }
     </style>
@@ -92,10 +83,10 @@
 
     <div class="top-header">
         <div class="logo-area">
-            <img src="https://raw.githubusercontent.com/klay91680-glitch/beechatstoreicon/main/file_00000000ebec82118ac8e6b60eca2810.png" class="app-logo" alt="BeeChat Store Logo">
+            <img src="https://raw.githubusercontent.com/klay91680-glitch/beechatstoreicon/main/file_00000000ebec82118ac8e6b60eca2810.png" class="app-logo" alt="BeeChat Store Logo" onerror="this.style.display='none'">
             BeeChat Store
         </div>
-        <div class="profile-btn" onclick="openLogin()">
+        <div class="profile-btn" onclick="switchTab('you', document.getElementById('nav-you'))">
             <span class="material-symbols-outlined">account_circle</span>
         </div>
     </div>
@@ -118,9 +109,8 @@
 
         <div class="section-title" id="sectionTitle">Suggested for you</div>
 
-        <!-- App List Container -->
         <div id="appList">
-            <!-- ဒီနေရာမှာ JavaScript ကနေ App တွေ အလိုအလျောက် ထည့်သွားပါမယ် -->
+            <!-- Apps တွေ ဒီနေရာမှာ ပေါ်လာမယ် -->
         </div>
 
         <div class="no-result" id="noResult">ရှာဖွေမှုနှင့် ကိုက်ညီသော App မတွေ့ပါ။</div>
@@ -133,16 +123,7 @@
         </div>
         <div class="profile-name" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">အကောင့်မရှိပါ</div>
         <p style="color: #5f6368; font-size: 14px; margin-bottom: 20px;">အကောင့်ဝင်ရန် သို့မဟုတ် အကောင့်အသစ်ဖွင့်ရန် နှိပ်ပါ။</p>
-        <button onclick="openLogin()" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်</button>
-    </div>
-
-    <!-- Login Modal -->
-    <div class="login-modal" id="loginModal">
-        <div class="login-box">
-            <h3>BeeChat Store မှ ကြိုဆိုပါတယ်</h3>
-            <p style="font-size: 14px; color: #5f6368; margin-bottom: 20px;">အကောင့်ဝင်ရန် သို့မဟုတ် အကောင့်အသစ်ဖွင့်ရန်</p>
-            <button onclick="closeLogin()">နောက်မှ (Cancel)</button>
-        </div>
+        <button onclick="alert('အကောင့်ဝင်ရန် စနစ် မထည့်ရသေးပါဘူးဗျ')" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">အကောင့်ဝင်ရန် / အကောင့်ဖွင့်ရန်</button>
     </div>
 
     <!-- Bottom Navigation -->
@@ -174,7 +155,6 @@
                 iconClass: "icon-telegram", 
                 rating: "4.5", 
                 size: "11.0.1 (51762)", 
-                // မင်း ပို့ပေးလိုက်တဲ့ လင့်ခ်အသစ်ကို ဒီမှာ ထည့်ထားပါတယ်
                 link: "https://dl.androidapksfree.net/file/8614f165983fa549?e=1793059200&s=3605c035a3dffa2ae3bb93e877380b6ca5febc7d95d18dc69a323c759bc1ab5a" 
             },
             { 
@@ -221,16 +201,14 @@
 
         const appListContainer = document.getElementById('appList');
 
-        // App တွေကို HTML ထဲ ထည့်သွင်းတဲ့ Function
         function renderApps() {
-            appListContainer.innerHTML = ''; // အရင်ရှိတာတွေ ရှင်းမယ်
+            appListContainer.innerHTML = '';
 
             appData.forEach(app => {
                 const isInstalled = localStorage.getItem('downloaded_' + app.id) === 'true';
                 const btnText = isInstalled ? 'Open' : 'Install';
                 const btnClass = isInstalled ? 'action-btn installed' : 'action-btn';
 
-                // HTML Element တွေ ဖန်တီးမယ်
                 const appItem = document.createElement('div');
                 appItem.className = 'app-item';
                 appItem.setAttribute('data-name', app.name + ' ' + app.dev);
@@ -250,7 +228,6 @@
             });
         }
 
-        // စာမျက်နှာ စပွင့်တာနဲ့ App တွေ ပေါ်လာအောင် လုပ်မယ်
         window.onload = function() {
             renderApps();
         };
@@ -353,14 +330,6 @@
                 searchContainer.classList.remove('active');
                 profilePage.classList.add('active');
             }
-        }
-
-        function openLogin() {
-            document.getElementById('loginModal').style.display = 'flex';
-        }
-
-        function closeLogin() {
-            document.getElementById('loginModal').style.display = 'none';
         }
     </script>
 </body>
