@@ -24,7 +24,6 @@
         .banner-card h2 { font-size: 18px; font-weight: 500; margin-bottom: 5px; }
         .section-title { font-size: 16px; font-weight: 500; padding: 15px 20px 10px; color: #202124; }
         .app-item { display: flex; align-items: center; padding: 12px 20px; gap: 16px; }
-        /* Icon ဒီဇိုင်း */
         .app-icon { width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); object-fit: cover; }
         .icon-default { background: #1a73e8; color: #fff; }
         .app-info { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
@@ -160,14 +159,13 @@
                     
                     // Icon ပုံရှိရင် ပုံပြမယ်၊ မရှိရင် စာလုံးပြမယ်
                     let iconHtml = '';
-                    if (app.iconUrl) {
-                        iconHtml = `<img src="${app.iconUrl}" class="app-icon" alt="${app.name}" onerror="this.outerHTML='<div class=\\'app-icon icon-default\\'>${app.name.charAt(0).toUpperCase()}</div>'">`;
+                    if (app.iconUrl && app.iconUrl !== "") {
+                        iconHtml = '<img src="' + app.iconUrl + '" class="app-icon" alt="icon" onerror="this.style.display=\'none\'">';
                     } else {
-                        iconHtml = `<div class="app-icon icon-default">${app.name.charAt(0).toUpperCase()}</div>`;
+                        iconHtml = '<div class="app-icon icon-default">' + app.name.charAt(0).toUpperCase() + '</div>';
                     }
 
-                    appItem.innerHTML = `
-                        ${iconHtml}
+                    appItem.innerHTML = iconHtml + `
                         <div class="app-info">
                             <div class="app-title">${app.name}</div>
                             <div class="app-dev">${app.dev || 'Developer'}</div>
@@ -178,6 +176,7 @@
                     appListContainer.appendChild(appItem);
                 });
             } catch (error) {
+                console.error(error);
                 appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:red;">ဒေတာဆွဲယူရာတွင် အမှားအယွင်းရှိနေပါသည်။</div>';
             }
         }
