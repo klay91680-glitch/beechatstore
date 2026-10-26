@@ -7,100 +7,286 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
-        body { background-color: #fff; color: #202124; padding-bottom: 80px; }
-        .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; position: sticky; top: 0; background: #fff; z-index: 10; }
-        .logo-area { font-size: 22px; font-weight: 500; color: #3c4043; display: flex; align-items: center; gap: 10px; }
+        :root {
+            --bg-color: #fff;
+            --text-color: #202124;
+            --card-bg: #fff;
+            --border-color: #dadce0;
+            --nav-bg: #fff;
+            --sub-text: #5f6368;
+            --input-bg: #f1f3f4;
+            --modal-bg: #fff;
+            --chat-bg: #f1f3f4;
+            --msg-user-bg: #e8f0fe;
+            --msg-user-text: #1a73e8;
+            --msg-admin-bg: #dcf8c6;
+            --msg-admin-text: #333;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e8eaed;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --nav-bg: #1e1e1e;
+            --sub-text: #9aa0a6;
+            --input-bg: #2d2d2d;
+            --modal-bg: #1e1e1e;
+            --chat-bg: #2d2d2d;
+            --msg-user-bg: #1a73e8;
+            --msg-user-text: #fff;
+            --msg-admin-bg: #2d2d2d;
+            --msg-admin-text: #e8eaed;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding-bottom: 80px; }
+        
+        .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; position: sticky; top: 0; background: var(--bg-color); z-index: 10; }
+        .logo-area { font-size: 22px; font-weight: 500; color: var(--text-color); display: flex; align-items: center; gap: 10px; }
         .app-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
-        .profile-btn { width: 36px; height: 36px; background: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #5f6368; }
-        .search-container { display: none; padding: 10px 20px; background: #fff; position: sticky; top: 66px; z-index: 9; border-bottom: 1px solid #eee; }
+        .profile-btn { width: 36px; height: 36px; background: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--sub-text); }
+        
+        .search-container { display: none; padding: 10px 20px; background: var(--bg-color); position: sticky; top: 66px; z-index: 9; border-bottom: 1px solid var(--border-color); }
         .search-container.active { display: block; }
-        .search-input { width: 100%; padding: 12px 15px; border-radius: 25px; border: 1px solid #dadce0; background: #f1f3f4; font-size: 15px; outline: none; }
+        .search-input { width: 100%; padding: 12px 15px; border-radius: 25px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); font-size: 15px; outline: none; }
+        
         .categories { display: flex; gap: 10px; padding: 10px 20px; overflow-x: auto; scrollbar-width: none; }
-        .cat-btn { padding: 8px 16px; background: #f1f3f4; border-radius: 20px; font-size: 14px; font-weight: 500; color: #3c4043; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+        .cat-btn { padding: 8px 16px; background: var(--input-bg); border-radius: 20px; font-size: 14px; font-weight: 500; color: var(--text-color); white-space: nowrap; display: flex; align-items: center; gap: 6px; }
         .cat-btn.active { background: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; }
+        
+        /* Banner Media */
         .featured-banner { padding: 15px 20px; }
-        .banner-card { background: linear-gradient(135deg, #8e24aa, #3949ab); border-radius: 16px; padding: 20px; color: white; height: 180px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .banner-card { background: linear-gradient(135deg, #8e24aa, #3949ab); border-radius: 16px; height: 180px; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; position: relative; }
+        .banner-media { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
+        .banner-content { position: relative; z-index: 2; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); color: white; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
         .banner-card h2 { font-size: 18px; font-weight: 500; margin-bottom: 5px; }
-        .section-title { font-size: 16px; font-weight: 500; padding: 15px 20px 10px; color: #202124; }
+        
+        .section-title { font-size: 16px; font-weight: 500; padding: 15px 20px 10px; color: var(--text-color); }
+        
         .app-item { display: flex; align-items: center; padding: 12px 20px; gap: 16px; }
         .app-icon { width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .icon-default { background: #1a73e8; color: #fff; }
         .app-info { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
-        .app-title { font-size: 15px; font-weight: 500; color: #202124; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .app-dev { font-size: 13px; color: #5f6368; }
-        .app-meta { font-size: 12px; color: #5f6368; display: flex; align-items: center; gap: 6px; }
+        .app-title { font-size: 15px; font-weight: 500; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .app-dev { font-size: 13px; color: var(--sub-text); }
+        .app-meta { font-size: 12px; color: var(--sub-text); display: flex; align-items: center; gap: 6px; }
         .app-meta .star { color: #1a73e8; display: flex; align-items: center; font-weight: 500; }
+        
         .action-btn { background: #1a73e8; color: white; border: none; padding: 8px 24px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; min-width: 85px; text-align: center; transition: 0.3s; }
         .action-btn:active { background: #1557b0; }
         .action-btn.installed { background: #e8f0fe; color: #1a73e8; font-weight: 600; border: 1px solid #1a73e8; }
-        .no-result { display: none; text-align: center; padding: 40px 20px; color: #5f6368; font-size: 15px; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 12px 0; border-top: 1px solid #dadce0; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #5f6368; font-size: 12px; gap: 4px; width: 25%; cursor: pointer; }
+        
+        .no-result { display: none; text-align: center; padding: 40px 20px; color: var(--sub-text); font-size: 15px; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--nav-bg); display: flex; justify-content: space-around; padding: 8px 0 12px 0; border-top: 1px solid var(--border-color); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--sub-text); font-size: 12px; gap: 4px; width: 25%; cursor: pointer; }
         .nav-item.active { color: #1a73e8; }
         .nav-item.active .nav-icon-bg { background: #e8f0fe; border-radius: 20px; padding: 2px 18px; }
         .material-symbols-outlined { font-size: 24px; }
         
-        /* Modal */
+        /* Modal Common */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: var(--modal-bg); color: var(--text-color); padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .modal-header h3 { font-size: 18px; color: #202124; }
-        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #5f6368; }
+        .modal-header h3 { font-size: 18px; color: var(--text-color); }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--sub-text); }
+        
         .form-group { margin-bottom: 12px; text-align: left; }
-        .form-group label { display: block; font-size: 13px; color: #5f6368; margin-bottom: 5px; font-weight: 500;}
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; outline: none; }
+        .form-group label { display: block; font-size: 13px; color: var(--sub-text); margin-bottom: 5px; font-weight: 500;}
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-color); border-radius: 8px; font-size: 14px; outline: none; }
         .submit-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 10px; }
 
-        /* Chat Message ပြသမှု */
-        .chat-messages { background: #f1f3f4; border-radius: 8px; padding: 10px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        /* Chat Message */
+        .chat-messages { background: var(--chat-bg); border-radius: 8px; padding: 10px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .msg-item { padding: 8px 12px; border-radius: 8px; font-size: 13px; max-width: 80%; word-wrap: break-word; }
-        .msg-user { background: #e8f0fe; align-self: flex-end; color: #1a73e8; }
-        .msg-admin { background: #dcf8c6; align-self: flex-start; color: #333; }
+        .msg-user { background: var(--msg-user-bg); align-self: flex-end; color: var(--msg-user-text); }
+        .msg-admin { background: var(--msg-admin-bg); align-self: flex-start; color: var(--msg-admin-text); }
+
+        /* --- Profile Page Styles (Image 2 & 3) --- */
+        .profile-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--input-bg); z-index: 1500; overflow-y: auto; }
+        .profile-header { display: flex; align-items: center; padding: 15px 20px; background: var(--bg-color); position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; margin-right: 15px; }
+        .profile-header h2 { font-size: 20px; font-weight: 500; color: var(--text-color); }
+        
+        .profile-container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .profile-card { background: var(--card-bg); border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .profile-left { display: flex; align-items: center; gap: 15px; }
+        .profile-left .material-symbols-outlined { color: var(--text-color); font-size: 28px; }
+        .profile-text { display: flex; flex-direction: column; }
+        .profile-label { font-size: 16px; font-weight: 500; color: var(--text-color); }
+        .profile-value { font-size: 14px; color: var(--sub-text); margin-top: 2px; }
+        
+        .profile-avatar-wrapper { position: relative; cursor: pointer; }
+        .profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: #e65100; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; object-fit: cover; }
+        .edit-avatar-badge { position: absolute; bottom: -5px; right: -5px; background: var(--card-bg); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+        .edit-avatar-badge .material-symbols-outlined { font-size: 16px; color: var(--text-color); }
+
+        /* Settings Modal */
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-text { font-size: 16px; color: var(--text-color); }
+        
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #1a73e8; }
+        input:checked + .slider:before { transform: translateX(22px); }
     </style>
 </head>
 <body>
-    <div class="top-header">
-        <div class="logo-area">
-            <img src="https://raw.githubusercontent.com/klay91680-glitch/beechatstoreicon/main/file_00000000ebec82118ac8e6b60eca2810.png" class="app-logo" alt="Logo" onerror="this.style.display='none'">
-            BeeChat Store
+    <!-- Main UI -->
+    <div id="mainUI">
+        <div class="top-header">
+            <div class="logo-area">
+                <img src="https://raw.githubusercontent.com/klay91680-glitch/beechatstoreicon/main/file_00000000ebec82118ac8e6b60eca2810.png" class="app-logo" alt="Logo" onerror="this.style.display='none'">
+                BeeChat Store
+            </div>
+            <div class="profile-btn" onclick="openProfile()">
+                <div id="headerAvatar" class="profile-avatar" style="width: 32px; height: 32px; font-size: 16px;">S</div>
+            </div>
         </div>
-        <div class="profile-btn" onclick="openUserForm()">
-            <span class="material-symbols-outlined">account_circle</span>
+        <div class="search-container" id="searchContainer">
+            <input type="text" id="searchInput" class="search-input" placeholder="App တွေကို ရှာဖွေပါ..." onkeyup="filterApps()">
         </div>
-    </div>
-    <div class="search-container" id="searchContainer">
-        <input type="text" id="searchInput" class="search-input" placeholder="App တွေကို ရှာဖွေပါ..." onkeyup="filterApps()">
-    </div>
-    <div id="main-content">
-        <div class="categories"><div class="cat-btn active"><span class="material-symbols-outlined" style="font-size: 18px;">bar_chart</span> Top charts</div></div>
-        <div class="featured-banner">
-            <div class="banner-card"><h2>Welcome to BeeChat Store</h2><p style="font-size: 12px; opacity: 0.8;">Smart Download System</p></div>
+        <div id="main-content">
+            <div class="categories"><div class="cat-btn active"><span class="material-symbols-outlined" style="font-size: 18px;">bar_chart</span> Top charts</div></div>
+            
+            <!-- Banner Section -->
+            <div class="featured-banner">
+                <div class="banner-card" id="bannerCard">
+                    <div class="banner-content" id="bannerDefaultContent">
+                        <h2>Welcome to BeeChat Store</h2><p style="font-size: 12px; opacity: 0.8;">Smart Download System</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title" id="sectionTitle">Suggested for you</div>
+            <div id="appList"><div style="text-align:center; padding: 20px; color:var(--sub-text);">Loading Apps...</div></div>
+            <div class="no-result" id="noResult">ရှာဖွေမှုနှင့် ကိုက်ညီသော App မတွေ့ပါ။</div>
         </div>
-        <div class="section-title" id="sectionTitle">Suggested for you</div>
-        <div id="appList"><div style="text-align:center; padding: 20px; color:#888;">Loading Apps...</div></div>
-        <div class="no-result" id="noResult">ရှာဖွေမှုနှင့် ကိုက်ညီသော App မတွေ့ပါ။</div>
     </div>
 
-    <!-- User Form Modal -->
+    <!-- Profile Page -->
+    <div class="profile-page" id="profilePage">
+        <div class="profile-header">
+            <button class="back-btn" onclick="closeProfile()"><span class="material-symbols-outlined">arrow_back</span></button>
+            <h2>Personal info</h2>
+        </div>
+        <div class="profile-container">
+            <!-- Profile Picture Row -->
+            <div class="profile-card">
+                <div class="profile-left">
+                    <span class="material-symbols-outlined">add_a_photo</span>
+                    <span class="profile-label">Profile picture</span>
+                </div>
+                <div class="profile-avatar-wrapper" onclick="openEditProfile()">
+                    <div class="profile-avatar" id="profileAvatar">S</div>
+                    <div class="edit-avatar-badge"><span class="material-symbols-outlined">edit</span></div>
+                </div>
+            </div>
+            <!-- Name Row -->
+            <div class="profile-card">
+                <div class="profile-left">
+                    <span class="material-symbols-outlined">badge</span>
+                    <div class="profile-text">
+                        <span class="profile-label">Name</span>
+                        <span class="profile-value" id="profileName">soelay usa777</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Gender Row -->
+            <div class="profile-card">
+                <div class="profile-left">
+                    <span class="material-symbols-outlined">person</span>
+                    <div class="profile-text">
+                        <span class="profile-label">Gender</span>
+                        <span class="profile-value" id="profileGender">Male</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Button -->
+            <div class="profile-card" style="cursor: pointer; justify-content: flex-start;" onclick="openSettings()">
+                <div class="profile-left">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="profile-label">Settings</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button class="close-btn" onclick="closeEditProfile()">×</button>
+            </div>
+            <div class="form-group">
+                <label>Profile Image URL</label>
+                <input type="url" id="editAvatarUrl" placeholder="https://example.com/photo.jpg">
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="editName" placeholder="Your Name">
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <input type="text" id="editGender" placeholder="Male / Female">
+            </div>
+            <button class="submit-btn" onclick="saveProfile()">Save</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="close-btn" onclick="closeSettings()">×</button>
+            </div>
+            
+            <div class="setting-item">
+                <span class="setting-text">Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="setting-item" style="cursor: pointer;" onclick="openUploadForm()">
+                <span class="setting-text">Upload APK</span>
+                <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- APK Upload Form Modal (User Form) -->
     <div class="modal" id="userFormModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>APK တင်ရန် တောင်းဆိုခြင်း</h3>
                 <button class="close-btn" onclick="closeUserForm()">×</button>
             </div>
-            
             <div class="form-group">
                 <label>APK အမည်</label>
-                <input type="text" id="reqName" placeholder="ဥပမာ - Telegram">
+                <input type="text" id="reqName" placeholder="App Name">
             </div>
             <div class="form-group">
                 <label>APK ဗားရှင်း (Version)</label>
-                <input type="text" id="reqVersion" placeholder="ဥပမာ - 11.0.1">
+                <input type="text" id="reqVersion" placeholder="e.g. 11.0.1">
             </div>
             <div class="form-group">
-                <label>APK လင့်ခ် (Link) အပြည့်အစုံ</label>
+                <label>APK လင့်ခ် (Link)</label>
                 <input type="url" id="reqLink" placeholder="https://...">
+            </div>
+            <div class="form-group">
+                <label>APK Icon ပုံလင့်ခ် (Image URL)</label>
+                <input type="url" id="reqIconUrl" placeholder="https://example.com/icon.png">
             </div>
             <div class="form-group">
                 <label>သင့် Gmail အကောင့်</label>
@@ -108,24 +294,21 @@
             </div>
             <div class="form-group">
                 <label>အကြောင်းအရာ (Chat Box)</label>
-                <textarea id="reqMessage" rows="2" placeholder="ဒီ App နဲ့ ပတ်သက်ပြီး ရှင်းပြချက် ရေးပါ..."></textarea>
+                <textarea id="reqMessage" rows="2" placeholder="..."></textarea>
             </div>
-
-            <!-- Admin ပြန်ပို့တဲ့ စာတွေ ဒီနေရာမှာ ပေါ်လာမယ် -->
             <div id="chatHistoryContainer" style="display:none;">
-                <label style="font-size: 13px; color: #5f6368; margin-bottom: 5px; display:block;">Admin ထံမှ ပြန်ကြားချက်</label>
+                <label style="font-size: 13px; color: var(--sub-text); margin-bottom: 5px; display:block;">Admin ထံမှ ပြန်ကြားချက်</label>
                 <div class="chat-messages" id="chatMessages"></div>
             </div>
-
             <button class="submit-btn" id="submitReqBtn" onclick="submitRequest()">Send တင်မည်</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
-        // ပထမ Firebase (App Store အတွက်)
+        // Firebase Configs
         const appConfig = {
             apiKey: "AIzaSyCBQwK-J4bY0Ol9iEpWu8bYHTLtZTllcGA",
             authDomain: "beechatstore.firebaseapp.com",
@@ -138,7 +321,6 @@
         const app = initializeApp(appConfig, "AppStore");
         const dbApps = getFirestore(app);
 
-        // ဒုတိယ Firebase (Chat အတွက်)
         const chatConfig = {
             apiKey: "AIzaSyDzcA6AqeUhXK-M55LmYLnviAhHz9cr0yY",
             authDomain: "mychat-e9337.firebaseapp.com",
@@ -151,62 +333,97 @@
         const chatApp = initializeApp(chatConfig, "ChatSystem");
         const dbChat = getFirestore(chatApp);
 
-        // App တွေကို ဆွဲယူပြမယ်
-        async function loadApps() {
+        let allApps = []; // Store all apps globally for filtering
+
+        // --- Load Banner ---
+        async function loadBanner() {
+            try {
+                const bannerDoc = await getDoc(doc(dbApps, "settings", "banner"));
+                if (bannerDoc.exists()) {
+                    const data = bannerDoc.data();
+                    const bannerCard = document.getElementById('bannerCard');
+                    if (data.type === 'image' && data.url) {
+                        bannerCard.innerHTML = `<img src="${data.url}" class="banner-media"><div class="banner-content"><h2>${data.title || ''}</h2></div>`;
+                    } else if (data.type === 'video' && data.url) {
+                        bannerCard.innerHTML = `<video src="${data.url}" class="banner-media" autoplay loop muted playsinline></video><div class="banner-content"><h2>${data.title || ''}</h2></div>`;
+                    }
+                }
+            } catch (e) { console.log("Banner load error", e); }
+        }
+
+        // --- Load Apps ---
+        async function loadApps(filterCategory = null) {
             const appListContainer = document.getElementById('appList');
-            appListContainer.innerHTML = ''; 
+            appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--sub-text);">Loading...</div>'; 
             try {
                 const querySnapshot = await getDocs(collection(dbApps, "apps"));
-                let appData = [];
-                querySnapshot.forEach((doc) => { appData.push({ id: doc.id, ...doc.data() }); });
-                if (appData.length === 0) { appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:#888;">Database ထဲမှာ App မရှိသေးပါဘူး။</div>'; return; }
-                appData.forEach(app => {
-                    const isInstalled = localStorage.getItem('downloaded_' + app.id) === 'true';
-                    const btnText = isInstalled ? 'Open' : 'Install';
-                    const btnClass = isInstalled ? 'action-btn installed' : 'action-btn';
-                    const appItem = document.createElement('div');
-                    appItem.className = 'app-item';
-                    appItem.setAttribute('data-name', app.name + ' ' + (app.dev || ''));
-                    const iconText = app.name ? app.name.charAt(0).toUpperCase() : 'A';
-                    appItem.innerHTML = `
-                        <div class="app-icon icon-default">${iconText}</div>
-                        <div class="app-info">
-                            <div class="app-title">${app.name}</div>
-                            <div class="app-dev">${app.dev || 'Developer'}</div>
-                            <div class="app-meta"><span class="star"><span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span> ${app.rating || '4.0'}</span> • ${app.version}</div>
-                        </div>
-                        <button class="${btnClass}" id="btn-${app.id}" data-link="${app.link}" onclick="smartInstall('${app.id}', this, '${app.link}')">${btnText}</button>
-                    `;
-                    appListContainer.appendChild(appItem);
-                });
+                allApps = [];
+                querySnapshot.forEach((doc) => { allApps.push({ id: doc.id, ...doc.data() }); });
+                
+                renderApps(filterCategory);
             } catch (error) {
-                appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:red;">ဒေတာဆွဲယူရာတွင် အမှားအယွင်းရှိနေပါသည်။</div>';
+                appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:red;">Error loading data.</div>';
             }
         }
 
-        // User ရဲ့ Chat History ကို ဆွဲယူပြမယ်
+        function renderApps(filterCategory = null) {
+            const appListContainer = document.getElementById('appList');
+            appListContainer.innerHTML = '';
+            
+            let filteredApps = allApps;
+            if (filterCategory) {
+                filteredApps = allApps.filter(app => app.category && app.category.toLowerCase() === filterCategory.toLowerCase());
+            }
+
+            if (filteredApps.length === 0) { 
+                appListContainer.innerHTML = `<div style="text-align:center; padding: 20px; color:var(--sub-text);">No apps found.</div>`; 
+                return; 
+            }
+
+            filteredApps.forEach(app => {
+                const isInstalled = localStorage.getItem('downloaded_' + app.id) === 'true';
+                const btnText = isInstalled ? 'Open' : 'Install';
+                const btnClass = isInstalled ? 'action-btn installed' : 'action-btn';
+                const appItem = document.createElement('div');
+                appItem.className = 'app-item';
+                appItem.setAttribute('data-name', app.name + ' ' + (app.dev || ''));
+
+                let iconHtml = '';
+                if (app.iconUrl && app.iconUrl.trim() !== "") {
+                    iconHtml = `<img src="${app.iconUrl}" class="app-icon" alt="${app.name}" style="object-fit: cover;" onerror="this.outerHTML='<div class=\\'app-icon icon-default\\'>${app.name ? app.name.charAt(0).toUpperCase() : 'A'}</div>'">`;
+                } else {
+                    const iconText = app.name ? app.name.charAt(0).toUpperCase() : 'A';
+                    iconHtml = `<div class="app-icon icon-default">${iconText}</div>`;
+                }
+
+                appItem.innerHTML = `
+                    ${iconHtml}
+                    <div class="app-info">
+                        <div class="app-title">${app.name}</div>
+                        <div class="app-dev">${app.dev || 'Developer'}</div>
+                        <div class="app-meta"><span class="star"><span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span> ${app.rating || '4.0'}</span> • ${app.version}</div>
+                    </div>
+                    <button class="${btnClass}" id="btn-${app.id}" data-link="${app.link}" onclick="smartInstall('${app.id}', this, '${app.link}')">${btnText}</button>
+                `;
+                appListContainer.appendChild(appItem);
+            });
+        }
+
+        // --- Chat & Submit ---
         let unsubscribeChat = null;
         window.loadChatHistory = function(email) {
             const chatContainer = document.getElementById('chatHistoryContainer');
             const chatMessages = document.getElementById('chatMessages');
-            
             chatContainer.style.display = 'block';
             chatMessages.innerHTML = 'Loading...';
-
             if (unsubscribeChat) unsubscribeChat();
-
             const q = query(collection(dbChat, "messages"), where("sender", "==", email));
             unsubscribeChat = onSnapshot(q, (snapshot) => {
                 chatMessages.innerHTML = '';
-                if (snapshot.empty) {
-                    chatMessages.innerHTML = '<div style="text-align:center; color:#888; font-size:12px;">Admin ထံမှ ပြန်ကြားချက် မရှိသေးပါ။</div>';
-                    return;
-                }
-                
+                if (snapshot.empty) { chatMessages.innerHTML = '<div style="text-align:center; color:var(--sub-text); font-size:12px;">Admin ထံမှ ပြန်ကြားချက် မရှိသေးပါ။</div>'; return; }
                 let msgs = [];
                 snapshot.forEach((doc) => { msgs.push(doc.data()); });
-                msgs.sort((a, b) => a.timestamp - b.timestamp); // အချိန်စဉ်အတိုင်း စီမယ်
-
+                msgs.sort((a, b) => a.timestamp - b.timestamp); 
                 msgs.forEach(data => {
                     const div = document.createElement('div');
                     div.className = `msg-item ${data.isAdmin ? 'msg-admin' : 'msg-user'}`;
@@ -216,62 +433,146 @@
             });
         };
 
-        // စာပို့တဲ့ Function
         window.submitRequest = async function() {
             const name = document.getElementById('reqName').value.trim();
             const version = document.getElementById('reqVersion').value.trim();
             const link = document.getElementById('reqLink').value.trim();
+            const iconUrl = document.getElementById('reqIconUrl').value.trim(); 
             const email = document.getElementById('reqEmail').value.trim();
             const message = document.getElementById('reqMessage').value.trim();
             const btn = document.getElementById('submitReqBtn');
 
             if (!name || !version || !link || !email || !message) { alert("အကွက်အားလုံးကို ဖြည့်ပါ။"); return; }
-            
             btn.innerText = "ပို့နေသည်...";
             try {
                 import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(({ addDoc, collection }) => {
                     addDoc(collection(dbChat, "messages"), {
-                        sender: email,
-                        appName: name,
-                        appVersion: version,
-                        appLink: link,
-                        text: message,
-                        isAdmin: false,
-                        timestamp: new Date()
+                        sender: email, appName: name, appVersion: version, appLink: link,
+                        iconUrl: iconUrl, text: message, isAdmin: false, timestamp: new Date()
                     }).then(() => {
-                        alert("စာပို့ပြီးပါပြီ။ Admin မှ ပြန်လည်ဖြေကြားပါမည်။");
+                        alert("စာပို့ပြီးပါပြီ။");
                         document.getElementById('reqName').value = '';
                         document.getElementById('reqVersion').value = '';
                         document.getElementById('reqLink').value = '';
+                        document.getElementById('reqIconUrl').value = ''; 
                         document.getElementById('reqMessage').value = '';
-                        // Form ကို မပိတ်ဘဲ Chat History ကို ပြထားမယ်
                         loadChatHistory(email);
                     });
                 });
-            } catch (error) {
-                alert("ပို့ရာတွင် အမှားအယွင်းရှိနေပါသည်။");
-            } finally { btn.innerText = "Send တင်မည်"; }
+            } catch (error) { alert("Error!"); } finally { btn.innerText = "Send တင်မည်"; }
         };
+
+        // --- Profile & Settings Logic ---
         
-        loadApps();
-    </script>
-    <script>
-        window.openUserForm = function() { 
-            document.getElementById('userFormModal').style.display = 'flex'; 
-            // Email ဖြည့်ပြီးသားဆိုရင် Chat History ကို ဆွဲပြမယ်
-            const email = document.getElementById('reqEmail').value.trim();
-            if (email) window.loadChatHistory(email);
+        // 1. Load Profile from LocalStorage on Start
+        function loadProfile() {
+            const savedName = localStorage.getItem('userName') || 'soelay usa777';
+            const savedGender = localStorage.getItem('userGender') || 'Male';
+            const savedAvatar = localStorage.getItem('userAvatar') || null;
+
+            document.getElementById('profileName').innerText = savedName;
+            document.getElementById('profileGender').innerText = savedGender;
+            
+            const avatarDiv = document.getElementById('profileAvatar');
+            const headerAvatar = document.getElementById('headerAvatar');
+
+            if (savedAvatar) {
+                avatarDiv.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                headerAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            } else {
+                avatarDiv.innerText = savedName.charAt(0).toUpperCase();
+                headerAvatar.innerText = savedName.charAt(0).toUpperCase();
+            }
+        }
+
+        window.openEditProfile = function() {
+            document.getElementById('editName').value = localStorage.getItem('userName') || 'soelay usa777';
+            document.getElementById('editGender').value = localStorage.getItem('userGender') || 'Male';
+            document.getElementById('editAvatarUrl').value = localStorage.getItem('userAvatar') || '';
+            document.getElementById('editProfileModal').style.display = 'flex';
         };
-        window.closeUserForm = function() { 
-            document.getElementById('userFormModal').style.display = 'none'; 
-            document.getElementById('chatHistoryContainer').style.display = 'none';
+
+        window.closeEditProfile = function() {
+            document.getElementById('editProfileModal').style.display = 'none';
         };
+
+        window.saveProfile = function() {
+            const newName = document.getElementById('editName').value.trim() || 'User';
+            const newGender = document.getElementById('editGender').value.trim() || 'Unknown';
+            const newAvatar = document.getElementById('editAvatarUrl').value.trim();
+
+            localStorage.setItem('userName', newName);
+            localStorage.setItem('userGender', newGender);
+            localStorage.setItem('userAvatar', newAvatar);
+
+            closeEditProfile();
+            loadProfile(); // Refresh UI
+        };
+
+        // 2. Navigation
+        window.openProfile = function() {
+            document.getElementById('profilePage').style.display = 'block';
+        };
+
+        window.closeProfile = function() {
+            document.getElementById('profilePage').style.display = 'none';
+        };
+
+        window.openSettings = function() {
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('darkModeToggle').checked = isDark;
+            document.getElementById('settingsModal').style.display = 'flex';
+        };
+
+        window.closeSettings = function() {
+            document.getElementById('settingsModal').style.display = 'none';
+        };
+
+        window.toggleDarkMode = function(checkbox) {
+            if (checkbox.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+            }
+        };
+
+        window.openUploadForm = function() {
+            closeSettings();
+            document.getElementById('userFormModal').style.display = 'flex';
+        };
+
+        window.closeUserForm = function() {
+            document.getElementById('userFormModal').style.display = 'none';
+        };
+
+        // --- Bottom Nav & Filtering ---
+
+        window.showGames = function() {
+            document.getElementById('sectionTitle').innerText = "Games";
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('nav-games').classList.add('active');
+            document.getElementById('searchContainer').classList.remove('active');
+            loadApps('game'); // Filter by category 'game'
+        };
+
+        window.resetView = function() {
+            document.getElementById('searchContainer').classList.remove('active');
+            document.getElementById('sectionTitle').innerText = "Suggested for you";
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('nav-apps').classList.add('active');
+            renderApps(); // Show all
+        };
+
         window.smartInstall = function(appId, btn, link) {
             if (localStorage.getItem('downloaded_' + appId) === 'true') { window.open(link, '_blank'); return; }
             btn.innerText = 'Downloading...'; btn.style.background = '#e8f0fe'; btn.style.color = '#1a73e8';
             window.open(link, '_blank'); localStorage.setItem('downloaded_' + appId, 'true');
             setTimeout(() => { btn.innerText = 'Open'; btn.classList.add('installed'); btn.style.background = ''; btn.style.color = ''; }, 2000);
         };
+        
         window.toggleSearch = function(element) {
             const searchContainer = document.getElementById('searchContainer');
             const searchInput = document.getElementById('searchInput');
@@ -281,6 +582,7 @@
             if (searchContainer.classList.contains('active')) { searchContainer.classList.remove('active'); window.resetView(); } 
             else { searchContainer.classList.add('active'); searchInput.focus(); sectionTitle.innerText = "Search Results"; searchInput.value = ''; window.filterApps(); }
         };
+        
         window.filterApps = function() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const appItems = document.querySelectorAll('.app-item');
@@ -292,21 +594,21 @@
             });
             if (hasResult || input === '') { noResult.style.display = 'none'; } else { noResult.style.display = 'block'; }
         };
-        window.resetView = function() {
-            document.getElementById('searchContainer').classList.remove('active');
-            document.getElementById('sectionTitle').innerText = "Suggested for you";
-            document.getElementById('searchInput').value = '';
-            document.querySelectorAll('.app-item').forEach(item => { item.style.display = 'flex'; });
-            document.getElementById('noResult').style.display = 'none';
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            document.getElementById('nav-apps').classList.add('active');
-        };
+
+        // Initialize
+        if(localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+        loadProfile();
+        loadBanner();
+        loadApps();
     </script>
-    <div class="bottom-nav">
-        <div class="nav-item"><span class="material-symbols-outlined">sports_esports</span> Games</div>
+    
+    <div class="bottom-nav" id="mainNav">
+        <div class="nav-item" id="nav-games" onclick="showGames()"><span class="material-symbols-outlined">sports_esports</span> Games</div>
         <div class="nav-item active" id="nav-apps" onclick="resetView()"><div class="nav-icon-bg"><span class="material-symbols-outlined">apps</span></div> Apps</div>
         <div class="nav-item" id="nav-search" onclick="toggleSearch(this)"><span class="material-symbols-outlined">search</span> Search</div>
-        <div class="nav-item" id="nav-you" onclick="openUserForm()"><span class="material-symbols-outlined">person</span> You</div>
+        <div class="nav-item" id="nav-you" onclick="openProfile()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
 </html>
