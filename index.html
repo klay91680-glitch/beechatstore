@@ -104,7 +104,7 @@
         .msg-user { background: var(--msg-user-bg); align-self: flex-end; color: var(--msg-user-text); }
         .msg-admin { background: var(--msg-admin-bg); align-self: flex-start; color: var(--msg-admin-text); }
 
-        /* --- Profile Page Styles (Image 2 & 3) --- */
+        /* --- Profile Page Styles --- */
         .profile-page { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--input-bg); z-index: 1500; overflow-y: auto; }
         .profile-header { display: flex; align-items: center; padding: 15px 20px; background: var(--bg-color); position: sticky; top: 0; z-index: 10; }
         .back-btn { background: none; border: none; cursor: pointer; color: var(--text-color); display: flex; align-items: center; margin-right: 15px; }
@@ -146,7 +146,8 @@
                 BeeChat Store
             </div>
             <div class="profile-btn" onclick="openProfile()">
-                <div id="headerAvatar" class="profile-avatar" style="width: 32px; height: 32px; font-size: 16px;">S</div>
+                <!-- Default Avatar (Empty State) -->
+                <div id="headerAvatar" class="profile-avatar" style="width: 32px; height: 32px; font-size: 16px;">U</div>
             </div>
         </div>
         <div class="search-container" id="searchContainer">
@@ -184,7 +185,8 @@
                     <span class="profile-label">Profile picture</span>
                 </div>
                 <div class="profile-avatar-wrapper" onclick="openEditProfile()">
-                    <div class="profile-avatar" id="profileAvatar">S</div>
+                    <!-- Default Avatar -->
+                    <div class="profile-avatar" id="profileAvatar">U</div>
                     <div class="edit-avatar-badge"><span class="material-symbols-outlined">edit</span></div>
                 </div>
             </div>
@@ -194,7 +196,8 @@
                     <span class="material-symbols-outlined">badge</span>
                     <div class="profile-text">
                         <span class="profile-label">Name</span>
-                        <span class="profile-value" id="profileName">soelay usa777</span>
+                        <!-- Empty by default -->
+                        <span class="profile-value" id="profileName"></span>
                     </div>
                 </div>
             </div>
@@ -204,7 +207,8 @@
                     <span class="material-symbols-outlined">person</span>
                     <div class="profile-text">
                         <span class="profile-label">Gender</span>
-                        <span class="profile-value" id="profileGender">Male</span>
+                        <!-- Empty by default -->
+                        <span class="profile-value" id="profileGender"></span>
                     </div>
                 </div>
             </div>
@@ -232,11 +236,12 @@
             </div>
             <div class="form-group">
                 <label>Name</label>
-                <input type="text" id="editName" placeholder="Your Name">
+                <!-- Placeholder empty -->
+                <input type="text" id="editName" placeholder="">
             </div>
             <div class="form-group">
                 <label>Gender</label>
-                <input type="text" id="editGender" placeholder="Male / Female">
+                <input type="text" id="editGender" placeholder="">
             </div>
             <button class="submit-btn" onclick="saveProfile()">Save</button>
         </div>
@@ -333,7 +338,7 @@
         const chatApp = initializeApp(chatConfig, "ChatSystem");
         const dbChat = getFirestore(chatApp);
 
-        let allApps = []; // Store all apps globally for filtering
+        let allApps = []; 
 
         // --- Load Banner ---
         async function loadBanner() {
@@ -464,30 +469,35 @@
 
         // --- Profile & Settings Logic ---
         
-        // 1. Load Profile from LocalStorage on Start
+        // 1. Load Profile (ကြိုတင်ရေးထားတာ မရှိတော့ပါ)
         function loadProfile() {
-            const savedName = localStorage.getItem('userName') || 'soelay usa777';
-            const savedGender = localStorage.getItem('userGender') || 'Male';
-            const savedAvatar = localStorage.getItem('userAvatar') || null;
+            const savedName = localStorage.getItem('userName');
+            const savedGender = localStorage.getItem('userGender');
+            const savedAvatar = localStorage.getItem('userAvatar');
 
-            document.getElementById('profileName').innerText = savedName;
-            document.getElementById('profileGender').innerText = savedGender;
+            // အမည် မရှိရင် အလွတ်ထားမယ်
+            document.getElementById('profileName').innerText = savedName ? savedName : "";
+            document.getElementById('profileGender').innerText = savedGender ? savedGender : "";
             
             const avatarDiv = document.getElementById('profileAvatar');
             const headerAvatar = document.getElementById('headerAvatar');
 
-            if (savedAvatar) {
+            // ပုံမရှိရင် Default အဖြစ် 'U' ပြမယ်
+            const defaultChar = savedName ? savedName.charAt(0).toUpperCase() : 'U';
+
+            if (savedAvatar && savedAvatar.trim() !== "") {
                 avatarDiv.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
                 headerAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
             } else {
-                avatarDiv.innerText = savedName.charAt(0).toUpperCase();
-                headerAvatar.innerText = savedName.charAt(0).toUpperCase();
+                avatarDiv.innerText = defaultChar;
+                headerAvatar.innerText = defaultChar;
             }
         }
 
         window.openEditProfile = function() {
-            document.getElementById('editName').value = localStorage.getItem('userName') || 'soelay usa777';
-            document.getElementById('editGender').value = localStorage.getItem('userGender') || 'Male';
+            // ဖောင်ဖွင့်တဲ့အခါ လက်ရှိ သိမ်းထားတာရှိမှ ပြမယ်
+            document.getElementById('editName').value = localStorage.getItem('userName') || '';
+            document.getElementById('editGender').value = localStorage.getItem('userGender') || '';
             document.getElementById('editAvatarUrl').value = localStorage.getItem('userAvatar') || '';
             document.getElementById('editProfileModal').style.display = 'flex';
         };
@@ -497,10 +507,11 @@
         };
 
         window.saveProfile = function() {
-            const newName = document.getElementById('editName').value.trim() || 'User';
-            const newGender = document.getElementById('editGender').value.trim() || 'Unknown';
+            const newName = document.getElementById('editName').value.trim();
+            const newGender = document.getElementById('editGender').value.trim();
             const newAvatar = document.getElementById('editAvatarUrl').value.trim();
 
+            // အလွတ်ဖြစ်နေရင်လည်း အလွတ်အတိုင်း သိမ်းမယ်
             localStorage.setItem('userName', newName);
             localStorage.setItem('userGender', newGender);
             localStorage.setItem('userAvatar', newAvatar);
@@ -554,7 +565,7 @@
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById('nav-games').classList.add('active');
             document.getElementById('searchContainer').classList.remove('active');
-            loadApps('game'); // Filter by category 'game'
+            loadApps('game'); 
         };
 
         window.resetView = function() {
@@ -563,7 +574,7 @@
             document.getElementById('searchInput').value = '';
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById('nav-apps').classList.add('active');
-            renderApps(); // Show all
+            renderApps(); 
         };
 
         window.smartInstall = function(appId, btn, link) {
@@ -611,4 +622,4 @@
         <div class="nav-item" id="nav-you" onclick="openProfile()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
-</html>
+            </html>
