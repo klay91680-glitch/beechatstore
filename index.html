@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        /* ... (CSS တွေ အတိုင်း) ... */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body { background-color: #fff; color: #202124; padding-bottom: 80px; }
         .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; position: sticky; top: 0; background: #fff; z-index: 10; }
@@ -41,17 +40,23 @@
         .nav-item.active { color: #1a73e8; }
         .nav-item.active .nav-icon-bg { background: #e8f0fe; border-radius: 20px; padding: 2px 18px; }
         .material-symbols-outlined { font-size: 24px; }
+        
+        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .modal-header h3 { font-size: 18px; color: #202124; }
         .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #5f6368; }
-        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group { margin-bottom: 12px; text-align: left; }
         .form-group label { display: block; font-size: 13px; color: #5f6368; margin-bottom: 5px; font-weight: 500;}
-        .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; outline: none; }
-        .form-group input:focus, .form-group textarea:focus { border-color: #1a73e8; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; outline: none; }
         .submit-btn { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; margin-top: 10px; }
-        .submit-btn:active { background: #1557b0; }
+
+        /* Chat Message ပြသမှု */
+        .chat-messages { background: #f1f3f4; border-radius: 8px; padding: 10px; margin-bottom: 15px; max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .msg-item { padding: 8px 12px; border-radius: 8px; font-size: 13px; max-width: 80%; word-wrap: break-word; }
+        .msg-user { background: #e8f0fe; align-self: flex-end; color: #1a73e8; }
+        .msg-admin { background: #dcf8c6; align-self: flex-start; color: #333; }
     </style>
 </head>
 <body>
@@ -77,7 +82,7 @@
         <div class="no-result" id="noResult">ရှာဖွေမှုနှင့် ကိုက်ညီသော App မတွေ့ပါ။</div>
     </div>
 
-    <!-- User Form Modal (အချက်အလက်အပြည့်အစုံ) -->
+    <!-- User Form Modal -->
     <div class="modal" id="userFormModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -89,25 +94,27 @@
                 <label>APK အမည်</label>
                 <input type="text" id="reqName" placeholder="ဥပမာ - Telegram">
             </div>
-            
             <div class="form-group">
                 <label>APK ဗားရှင်း (Version)</label>
                 <input type="text" id="reqVersion" placeholder="ဥပမာ - 11.0.1">
             </div>
-
             <div class="form-group">
                 <label>APK လင့်ခ် (Link) အပြည့်အစုံ</label>
                 <input type="url" id="reqLink" placeholder="https://...">
             </div>
-            
             <div class="form-group">
                 <label>သင့် Gmail အကောင့်</label>
                 <input type="email" id="reqEmail" placeholder="example@gmail.com">
             </div>
-
             <div class="form-group">
                 <label>အကြောင်းအရာ (Chat Box)</label>
-                <textarea id="reqMessage" rows="3" placeholder="ဒီ App နဲ့ ပတ်သက်ပြီး ရှင်းပြချက် ရေးပါ..."></textarea>
+                <textarea id="reqMessage" rows="2" placeholder="ဒီ App နဲ့ ပတ်သက်ပြီး ရှင်းပြချက် ရေးပါ..."></textarea>
+            </div>
+
+            <!-- Admin ပြန်ပို့တဲ့ စာတွေ ဒီနေရာမှာ ပေါ်လာမယ် -->
+            <div id="chatHistoryContainer" style="display:none;">
+                <label style="font-size: 13px; color: #5f6368; margin-bottom: 5px; display:block;">Admin ထံမှ ပြန်ကြားချက်</label>
+                <div class="chat-messages" id="chatMessages"></div>
             </div>
 
             <button class="submit-btn" id="submitReqBtn" onclick="submitRequest()">Send တင်မည်</button>
@@ -116,8 +123,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
+        // ပထမ Firebase (App Store အတွက်)
         const appConfig = {
             apiKey: "AIzaSyCBQwK-J4bY0Ol9iEpWu8bYHTLtZTllcGA",
             authDomain: "beechatstore.firebaseapp.com",
@@ -130,6 +138,7 @@
         const app = initializeApp(appConfig, "AppStore");
         const dbApps = getFirestore(app);
 
+        // ဒုတိယ Firebase (Chat အတွက်)
         const chatConfig = {
             apiKey: "AIzaSyDzcA6AqeUhXK-M55LmYLnviAhHz9cr0yY",
             authDomain: "mychat-e9337.firebaseapp.com",
@@ -142,6 +151,7 @@
         const chatApp = initializeApp(chatConfig, "ChatSystem");
         const dbChat = getFirestore(chatApp);
 
+        // App တွေကို ဆွဲယူပြမယ်
         async function loadApps() {
             const appListContainer = document.getElementById('appList');
             appListContainer.innerHTML = ''; 
@@ -174,6 +184,39 @@
             }
         }
 
+        // User ရဲ့ Chat History ကို ဆွဲယူပြမယ်
+        let unsubscribeChat = null;
+        window.loadChatHistory = function(email) {
+            const chatContainer = document.getElementById('chatHistoryContainer');
+            const chatMessages = document.getElementById('chatMessages');
+            
+            chatContainer.style.display = 'block';
+            chatMessages.innerHTML = 'Loading...';
+
+            if (unsubscribeChat) unsubscribeChat();
+
+            const q = query(collection(dbChat, "messages"), where("sender", "==", email));
+            unsubscribeChat = onSnapshot(q, (snapshot) => {
+                chatMessages.innerHTML = '';
+                if (snapshot.empty) {
+                    chatMessages.innerHTML = '<div style="text-align:center; color:#888; font-size:12px;">Admin ထံမှ ပြန်ကြားချက် မရှိသေးပါ။</div>';
+                    return;
+                }
+                
+                let msgs = [];
+                snapshot.forEach((doc) => { msgs.push(doc.data()); });
+                msgs.sort((a, b) => a.timestamp - b.timestamp); // အချိန်စဉ်အတိုင်း စီမယ်
+
+                msgs.forEach(data => {
+                    const div = document.createElement('div');
+                    div.className = `msg-item ${data.isAdmin ? 'msg-admin' : 'msg-user'}`;
+                    div.innerText = data.text;
+                    chatMessages.appendChild(div);
+                });
+            });
+        };
+
+        // စာပို့တဲ့ Function
         window.submitRequest = async function() {
             const name = document.getElementById('reqName').value.trim();
             const version = document.getElementById('reqVersion').value.trim();
@@ -182,16 +225,13 @@
             const message = document.getElementById('reqMessage').value.trim();
             const btn = document.getElementById('submitReqBtn');
 
-            if (!name || !version || !link || !email || !message) { 
-                alert("အကွက်အားလုံးကို ဖြည့်ပါ။"); 
-                return; 
-            }
+            if (!name || !version || !link || !email || !message) { alert("အကွက်အားလုံးကို ဖြည့်ပါ။"); return; }
             
             btn.innerText = "ပို့နေသည်...";
             try {
                 import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(({ addDoc, collection }) => {
                     addDoc(collection(dbChat, "messages"), {
-                        sender: email, // Email ကို sender အဖြစ် သုံးမယ်
+                        sender: email,
                         appName: name,
                         appVersion: version,
                         appLink: link,
@@ -203,21 +243,29 @@
                         document.getElementById('reqName').value = '';
                         document.getElementById('reqVersion').value = '';
                         document.getElementById('reqLink').value = '';
-                        document.getElementById('reqEmail').value = '';
                         document.getElementById('reqMessage').value = '';
-                        closeUserForm();
+                        // Form ကို မပိတ်ဘဲ Chat History ကို ပြထားမယ်
+                        loadChatHistory(email);
                     });
                 });
             } catch (error) {
                 alert("ပို့ရာတွင် အမှားအယွင်းရှိနေပါသည်။");
             } finally { btn.innerText = "Send တင်မည်"; }
         };
+        
         loadApps();
     </script>
     <script>
-        /* ... (ကျန်တဲ့ UI script တွေ အတိုင်း) ... */
-        window.openUserForm = function() { document.getElementById('userFormModal').style.display = 'flex'; };
-        window.closeUserForm = function() { document.getElementById('userFormModal').style.display = 'none'; };
+        window.openUserForm = function() { 
+            document.getElementById('userFormModal').style.display = 'flex'; 
+            // Email ဖြည့်ပြီးသားဆိုရင် Chat History ကို ဆွဲပြမယ်
+            const email = document.getElementById('reqEmail').value.trim();
+            if (email) window.loadChatHistory(email);
+        };
+        window.closeUserForm = function() { 
+            document.getElementById('userFormModal').style.display = 'none'; 
+            document.getElementById('chatHistoryContainer').style.display = 'none';
+        };
         window.smartInstall = function(appId, btn, link) {
             if (localStorage.getItem('downloaded_' + appId) === 'true') { window.open(link, '_blank'); return; }
             btn.innerText = 'Downloading...'; btn.style.background = '#e8f0fe'; btn.style.color = '#1a73e8';
@@ -261,4 +309,4 @@
         <div class="nav-item" id="nav-you" onclick="openUserForm()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
-</html>
+    </html>
