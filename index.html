@@ -6,72 +6,46 @@
     <title>BeeChat Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    
     <style>
+        /* ... (ရှေ့က CSS တွေ အတိုင်း) ... */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body { background-color: #fff; color: #202124; padding-bottom: 80px; }
-
-        /* Top Header */
         .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; position: sticky; top: 0; background: #fff; z-index: 10; }
         .logo-area { font-size: 22px; font-weight: 500; color: #3c4043; display: flex; align-items: center; gap: 10px; }
         .app-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
-
-        /* Profile Icon */
-        .profile-btn { width: 36px; height: 36px; background: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #5f6368; transition: 0.2s; }
-        .profile-btn:hover { background: #f1f3f4; }
-        .profile-btn .material-symbols-outlined { font-size: 32px; }
-
-        /* Search Bar */
+        .profile-btn { width: 36px; height: 36px; background: transparent; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: #5f6368; }
         .search-container { display: none; padding: 10px 20px; background: #fff; position: sticky; top: 66px; z-index: 9; border-bottom: 1px solid #eee; }
         .search-container.active { display: block; }
         .search-input { width: 100%; padding: 12px 15px; border-radius: 25px; border: 1px solid #dadce0; background: #f1f3f4; font-size: 15px; outline: none; }
-        .search-input:focus { border-color: #1a73e8; background: #fff; }
-
-        /* Categories */
         .categories { display: flex; gap: 10px; padding: 10px 20px; overflow-x: auto; scrollbar-width: none; }
-        .categories::-webkit-scrollbar { display: none; }
         .cat-btn { padding: 8px 16px; background: #f1f3f4; border-radius: 20px; font-size: 14px; font-weight: 500; color: #3c4043; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
         .cat-btn.active { background: #e8f0fe; color: #1a73e8; border: 1px solid #1a73e8; }
-
-        /* Featured Banner */
         .featured-banner { padding: 15px 20px; }
         .banner-card { background: linear-gradient(135deg, #8e24aa, #3949ab); border-radius: 16px; padding: 20px; color: white; height: 180px; display: flex; flex-direction: column; justify-content: flex-end; }
         .banner-card h2 { font-size: 18px; font-weight: 500; margin-bottom: 5px; }
-
-        /* App List */
         .section-title { font-size: 16px; font-weight: 500; padding: 15px 20px 10px; color: #202124; }
         .app-item { display: flex; align-items: center; padding: 12px 20px; gap: 16px; }
-        
         .app-icon { width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .icon-default { background: #1a73e8; color: #fff; }
-
         .app-info { flex: 1; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
         .app-title { font-size: 15px; font-weight: 500; color: #202124; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .app-dev { font-size: 13px; color: #5f6368; }
         .app-meta { font-size: 12px; color: #5f6368; display: flex; align-items: center; gap: 6px; }
         .app-meta .star { color: #1a73e8; display: flex; align-items: center; font-weight: 500; }
-
         .action-btn { background: #1a73e8; color: white; border: none; padding: 8px 24px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; min-width: 85px; text-align: center; transition: 0.3s; }
         .action-btn:active { background: #1557b0; }
         .action-btn.installed { background: #e8f0fe; color: #1a73e8; font-weight: 600; border: 1px solid #1a73e8; }
-
         .no-result { display: none; text-align: center; padding: 40px 20px; color: #5f6368; font-size: 15px; }
-
-        /* Bottom Navigation */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 8px 0 12px 0; border-top: 1px solid #dadce0; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: #5f6368; font-size: 12px; gap: 4px; width: 25%; cursor: pointer; }
         .nav-item.active { color: #1a73e8; }
         .nav-item.active .nav-icon-bg { background: #e8f0fe; border-radius: 20px; padding: 2px 18px; }
         .material-symbols-outlined { font-size: 24px; }
-
-        /* Modal (Popup) ဒီဇိုင်း */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h3 { font-size: 18px; color: #202124; }
         .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #5f6368; }
-        
-        /* Form ဒီဇိုင်း */
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; font-size: 13px; color: #5f6368; margin-bottom: 5px; font-weight: 500;}
         .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #dadce0; border-radius: 8px; font-size: 14px; outline: none; }
@@ -81,81 +55,53 @@
     </style>
 </head>
 <body>
-
     <div class="top-header">
         <div class="logo-area">
-            <img src="https://raw.githubusercontent.com/klay91680-glitch/beechatstoreicon/main/file_00000000ebec82118ac8e6b60eca2810.png" class="app-logo" alt="BeeChat Store Logo" onerror="this.style.display='none'">
+            <img src="https://raw.githubusercontent.com/klay91680-glitch/beechatstoreicon/main/file_00000000ebec82118ac8e6b60eca2810.png" class="app-logo" alt="Logo" onerror="this.style.display='none'">
             BeeChat Store
         </div>
-        <!-- Profile Icon ကို နှိပ်ရင် Login/Form ပေါ်လာမယ် -->
         <div class="profile-btn" onclick="openUserForm()">
             <span class="material-symbols-outlined">account_circle</span>
         </div>
     </div>
-
     <div class="search-container" id="searchContainer">
         <input type="text" id="searchInput" class="search-input" placeholder="App တွေကို ရှာဖွေပါ..." onkeyup="filterApps()">
     </div>
-
     <div id="main-content">
-        <div class="categories">
-            <div class="cat-btn active"><span class="material-symbols-outlined" style="font-size: 18px;">bar_chart</span> Top charts</div>
-        </div>
-
+        <div class="categories"><div class="cat-btn active"><span class="material-symbols-outlined" style="font-size: 18px;">bar_chart</span> Top charts</div></div>
         <div class="featured-banner">
-            <div class="banner-card">
-                <h2>Welcome to BeeChat Store</h2>
-                <p style="font-size: 12px; opacity: 0.8;">Smart Download System</p>
-            </div>
+            <div class="banner-card"><h2>Welcome to BeeChat Store</h2><p style="font-size: 12px; opacity: 0.8;">Smart Download System</p></div>
         </div>
-
         <div class="section-title" id="sectionTitle">Suggested for you</div>
-
-        <div id="appList">
-            <div style="text-align:center; padding: 20px; color:#888;">Loading Apps...</div>
-        </div>
-
+        <div id="appList"><div style="text-align:center; padding: 20px; color:#888;">Loading Apps...</div></div>
         <div class="no-result" id="noResult">ရှာဖွေမှုနှင့် ကိုက်ညီသော App မတွေ့ပါ။</div>
     </div>
 
-    <!-- User Form Modal (User တွေ APK တင်ဖို့ တောင်းဆိုတဲ့ နေရာ) -->
+    <!-- User Form Modal -->
     <div class="modal" id="userFormModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>APK တင်ရန် တောင်းဆိုခြင်း</h3>
+                <h3>Admin ထံ စာပို့ရန်</h3>
                 <button class="close-btn" onclick="closeUserForm()">×</button>
             </div>
-            
             <div class="form-group">
-                <label>APK အမည်</label>
-                <input type="text" id="reqName" placeholder="ဥပမာ - Telegram">
+                <label>သင့်နာမည်</label>
+                <input type="text" id="reqName" placeholder="ဥပမာ - Mg Mg">
             </div>
-            
             <div class="form-group">
-                <label>APK ဗားရှင်း (Version)</label>
-                <input type="text" id="reqVersion" placeholder="ဥပမာ - 11.0.1">
+                <label>အကြောင်းအရာ</label>
+                <textarea id="reqMessage" rows="3" placeholder="APK တင်လိုခြင်း သို့မဟုတ် အခြားအကြောင်းအရာ..."></textarea>
             </div>
-
-            <div class="form-group">
-                <label>APK လင့်ခ် (Link)</label>
-                <input type="url" id="reqLink" placeholder="https://...">
-            </div>
-
-            <div class="form-group">
-                <label>Admin ထံ ပို့လိုသော အကြောင်းအရာ</label>
-                <textarea id="reqMessage" rows="3" placeholder="ဒီ App နဲ့ ပတ်သက်ပြီး ရှင်းပြချက် ရေးပါ..."></textarea>
-            </div>
-
-            <button class="submit-btn" id="submitReqBtn" onclick="submitRequest()">Send တင်မည်</button>
+            <button class="submit-btn" id="submitReqBtn" onclick="submitRequest()">Send ပို့မည်</button>
         </div>
     </div>
 
-    <!-- Firebase Script (ဒေတာဆွဲယူရန် နဲ့ တောင်းဆိုမှု ပို့ရန်) -->
     <script type="module">
+        // ပထမ Firebase (App Store အတွက်)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        
+        const appConfig = {
             apiKey: "AIzaSyCBQwK-J4bY0Ol9iEpWu8bYHTLtZTllcGA",
             authDomain: "beechatstore.firebaseapp.com",
             projectId: "beechatstore",
@@ -164,24 +110,30 @@
             appId: "1:471091789082:web:8f832b97912f4baed3c0a3",
             measurementId: "G-NSY3XDQ7Q0"
         };
+        const app = initializeApp(appConfig, "AppStore");
+        const dbApps = getFirestore(app);
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // ဒုတိယ Firebase (Chat အတွက်)
+        const chatConfig = {
+            apiKey: "AIzaSyDzcA6AqeUhXK-M55LmYLnviAhHz9cr0yY",
+            authDomain: "mychat-e9337.firebaseapp.com",
+            projectId: "mychat-e9337",
+            storageBucket: "mychat-e9337.firebasestorage.app",
+            messagingSenderId: "906029314549",
+            appId: "1:906029314549:web:e1321fa139c159b9c570bc",
+            measurementId: "G-FK56LL03DV"
+        };
+        const chatApp = initializeApp(chatConfig, "ChatSystem");
+        const dbChat = getFirestore(chatApp);
 
-        // App တွေကို ဆွဲယူပြမယ်
         async function loadApps() {
             const appListContainer = document.getElementById('appList');
             appListContainer.innerHTML = ''; 
             try {
-                const querySnapshot = await getDocs(collection(db, "apps"));
+                const querySnapshot = await getDocs(collection(dbApps, "apps"));
                 let appData = [];
-                querySnapshot.forEach((doc) => {
-                    appData.push({ id: doc.id, ...doc.data() });
-                });
-                if (appData.length === 0) {
-                    appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:#888;">Database ထဲမှာ App မရှိသေးပါဘူး။</div>';
-                    return;
-                }
+                querySnapshot.forEach((doc) => { appData.push({ id: doc.id, ...doc.data() }); });
+                if (appData.length === 0) { appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:#888;">Database ထဲမှာ App မရှိသေးပါဘူး။</div>'; return; }
                 appData.forEach(app => {
                     const isInstalled = localStorage.getItem('downloaded_' + app.id) === 'true';
                     const btnText = isInstalled ? 'Open' : 'Install';
@@ -190,115 +142,68 @@
                     appItem.className = 'app-item';
                     appItem.setAttribute('data-name', app.name + ' ' + (app.dev || ''));
                     const iconText = app.name ? app.name.charAt(0).toUpperCase() : 'A';
-                    const iconClass = 'icon-default';
                     appItem.innerHTML = `
-                        <div class="app-icon ${iconClass}">${iconText}</div>
+                        <div class="app-icon icon-default">${iconText}</div>
                         <div class="app-info">
                             <div class="app-title">${app.name}</div>
                             <div class="app-dev">${app.dev || 'Developer'}</div>
-                            <div class="app-meta">
-                                <span class="star"><span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span> ${app.rating || '4.0'}</span> • ${app.version}
-                            </div>
+                            <div class="app-meta"><span class="star"><span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">star</span> ${app.rating || '4.0'}</span> • ${app.version}</div>
                         </div>
                         <button class="${btnClass}" id="btn-${app.id}" data-link="${app.link}" onclick="smartInstall('${app.id}', this, '${app.link}')">${btnText}</button>
                     `;
                     appListContainer.appendChild(appItem);
                 });
             } catch (error) {
-                console.error("Error loading apps: ", error);
                 appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:red;">ဒေတာဆွဲယူရာတွင် အမှားအယွင်းရှိနေပါသည်။</div>';
             }
         }
 
-        // User က တောင်းဆိုမှု ပို့တဲ့ Function
         window.submitRequest = async function() {
             const name = document.getElementById('reqName').value.trim();
-            const version = document.getElementById('reqVersion').value.trim();
-            const link = document.getElementById('reqLink').value.trim();
             const message = document.getElementById('reqMessage').value.trim();
             const btn = document.getElementById('submitReqBtn');
-
-            if (!name || !version || !link) {
-                alert("App အမည်၊ ဗားရှင်း နဲ့ လင့်ခ် ကို မဖြစ်မနေ ဖြည့်ပါ။");
-                return;
-            }
-
+            if (!name || !message) { alert("အကွက်အားလုံးကို ဖြည့်ပါ။"); return; }
             btn.innerText = "ပို့နေသည်...";
-
             try {
-                await addDoc(collection(db, "requests"), {
-                    name: name,
-                    version: version,
-                    link: link,
-                    message: message,
-                    status: "pending",
-                    timestamp: new Date()
+                // Chat အတွက် ဒုတိယ Firebase ကို သုံးမယ်
+                import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(({ addDoc, collection }) => {
+                    addDoc(collection(dbChat, "messages"), {
+                        sender: name,
+                        text: message,
+                        isAdmin: false,
+                        timestamp: new Date()
+                    }).then(() => {
+                        alert("စာပို့ပြီးပါပြီ။ Admin မှ ပြန်လည်ဖြေကြားပါမည်။");
+                        document.getElementById('reqName').value = '';
+                        document.getElementById('reqMessage').value = '';
+                        closeUserForm();
+                    });
                 });
-                
-                alert("တောင်းဆိုမှု ပို့ပြီးပါပြီ။ Admin က စစ်ဆေးပြီး ခွင့်ပြုချက်ပေးပါလိမ့်မယ်။");
-                document.getElementById('reqName').value = '';
-                document.getElementById('reqVersion').value = '';
-                document.getElementById('reqLink').value = '';
-                document.getElementById('reqMessage').value = '';
-                closeUserForm();
             } catch (error) {
-                console.error("Error submitting request: ", error);
                 alert("ပို့ရာတွင် အမှားအယွင်းရှိနေပါသည်။");
-            } finally {
-                btn.innerText = "Send တင်မည်";
-            }
+            } finally { btn.innerText = "Send ပို့မည်"; }
         };
-
         loadApps();
     </script>
-
-    <!-- UI Script -->
     <script>
-        // Modal ဖွင့်/ပိတ်
-        window.openUserForm = function() {
-            document.getElementById('userFormModal').style.display = 'flex';
-        };
-
-        window.closeUserForm = function() {
-            document.getElementById('userFormModal').style.display = 'none';
-        };
-
+        /* ... (ကျန်တဲ့ UI script တွေ အတိုင်း) ... */
+        window.openUserForm = function() { document.getElementById('userFormModal').style.display = 'flex'; };
+        window.closeUserForm = function() { document.getElementById('userFormModal').style.display = 'none'; };
         window.smartInstall = function(appId, btn, link) {
-            if (localStorage.getItem('downloaded_' + appId) === 'true') {
-                window.open(link, '_blank');
-                return;
-            }
-            btn.innerText = 'Downloading...';
-            btn.style.background = '#e8f0fe';
-            btn.style.color = '#1a73e8';
-            window.open(link, '_blank');
-            localStorage.setItem('downloaded_' + appId, 'true');
-            setTimeout(() => {
-                btn.innerText = 'Open';
-                btn.classList.add('installed');
-                btn.style.background = '';
-                btn.style.color = '';
-            }, 2000);
+            if (localStorage.getItem('downloaded_' + appId) === 'true') { window.open(link, '_blank'); return; }
+            btn.innerText = 'Downloading...'; btn.style.background = '#e8f0fe'; btn.style.color = '#1a73e8';
+            window.open(link, '_blank'); localStorage.setItem('downloaded_' + appId, 'true');
+            setTimeout(() => { btn.innerText = 'Open'; btn.classList.add('installed'); btn.style.background = ''; btn.style.color = ''; }, 2000);
         };
-
         window.toggleSearch = function(element) {
             const searchContainer = document.getElementById('searchContainer');
             const searchInput = document.getElementById('searchInput');
             const sectionTitle = document.getElementById('sectionTitle');
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             element.classList.add('active');
-            if (searchContainer.classList.contains('active')) {
-                searchContainer.classList.remove('active');
-                window.resetView(); 
-            } else {
-                searchContainer.classList.add('active');
-                searchInput.focus();
-                sectionTitle.innerText = "Search Results";
-                searchInput.value = ''; 
-                window.filterApps(); 
-            }
+            if (searchContainer.classList.contains('active')) { searchContainer.classList.remove('active'); window.resetView(); } 
+            else { searchContainer.classList.add('active'); searchInput.focus(); sectionTitle.innerText = "Search Results"; searchInput.value = ''; window.filterApps(); }
         };
-
         window.filterApps = function() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const appItems = document.querySelectorAll('.app-item');
@@ -306,47 +211,25 @@
             let hasResult = false;
             appItems.forEach(item => {
                 const appName = item.getAttribute('data-name').toLowerCase();
-                if (appName.includes(input)) {
-                    item.style.display = 'flex';
-                    hasResult = true;
-                } else {
-                    item.style.display = 'none';
-                }
+                if (appName.includes(input)) { item.style.display = 'flex'; hasResult = true; } else { item.style.display = 'none'; }
             });
-            if (hasResult || input === '') {
-                noResult.style.display = 'none';
-            } else {
-                noResult.style.display = 'block';
-            }
+            if (hasResult || input === '') { noResult.style.display = 'none'; } else { noResult.style.display = 'block'; }
         };
-
         window.resetView = function() {
             document.getElementById('searchContainer').classList.remove('active');
             document.getElementById('sectionTitle').innerText = "Suggested for you";
             document.getElementById('searchInput').value = '';
-            document.querySelectorAll('.app-item').forEach(item => {
-                item.style.display = 'flex';
-            });
+            document.querySelectorAll('.app-item').forEach(item => { item.style.display = 'flex'; });
             document.getElementById('noResult').style.display = 'none';
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             document.getElementById('nav-apps').classList.add('active');
         };
     </script>
-
-    <!-- Bottom Navigation -->
     <div class="bottom-nav">
-        <div class="nav-item">
-            <span class="material-symbols-outlined">sports_esports</span> Games
-        </div>
-        <div class="nav-item active" id="nav-apps" onclick="resetView()">
-            <div class="nav-icon-bg"><span class="material-symbols-outlined">apps</span></div> Apps
-        </div>
-        <div class="nav-item" id="nav-search" onclick="toggleSearch(this)">
-            <span class="material-symbols-outlined">search</span> Search
-        </div>
-        <div class="nav-item" id="nav-you" onclick="openUserForm()">
-            <span class="material-symbols-outlined">person</span> You
-        </div>
+        <div class="nav-item"><span class="material-symbols-outlined">sports_esports</span> Games</div>
+        <div class="nav-item active" id="nav-apps" onclick="resetView()"><div class="nav-icon-bg"><span class="material-symbols-outlined">apps</span></div> Apps</div>
+        <div class="nav-item" id="nav-search" onclick="toggleSearch(this)"><span class="material-symbols-outlined">search</span> Search</div>
+        <div class="nav-item" id="nav-you" onclick="openUserForm()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
 </html>
