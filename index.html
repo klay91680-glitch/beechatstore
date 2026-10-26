@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        /* ... (ရှေ့က CSS တွေ အတိုင်း) ... */
+        /* ... (CSS တွေ အတိုင်း) ... */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
         body { background-color: #fff; color: #202124; padding-bottom: 80px; }
         .top-header { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; position: sticky; top: 0; background: #fff; z-index: 10; }
@@ -42,7 +42,7 @@
         .nav-item.active .nav-icon-bg { background: #e8f0fe; border-radius: 20px; padding: 2px 18px; }
         .material-symbols-outlined { font-size: 24px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h3 { font-size: 18px; color: #202124; }
         .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #5f6368; }
@@ -77,27 +77,44 @@
         <div class="no-result" id="noResult">ရှာဖွေမှုနှင့် ကိုက်ညီသော App မတွေ့ပါ။</div>
     </div>
 
-    <!-- User Form Modal -->
+    <!-- User Form Modal (အချက်အလက်အပြည့်အစုံ) -->
     <div class="modal" id="userFormModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Admin ထံ စာပို့ရန်</h3>
+                <h3>APK တင်ရန် တောင်းဆိုခြင်း</h3>
                 <button class="close-btn" onclick="closeUserForm()">×</button>
             </div>
+            
             <div class="form-group">
-                <label>သင့်နာမည်</label>
-                <input type="text" id="reqName" placeholder="ဥပမာ - Mg Mg">
+                <label>APK အမည်</label>
+                <input type="text" id="reqName" placeholder="ဥပမာ - Telegram">
             </div>
+            
             <div class="form-group">
-                <label>အကြောင်းအရာ</label>
-                <textarea id="reqMessage" rows="3" placeholder="APK တင်လိုခြင်း သို့မဟုတ် အခြားအကြောင်းအရာ..."></textarea>
+                <label>APK ဗားရှင်း (Version)</label>
+                <input type="text" id="reqVersion" placeholder="ဥပမာ - 11.0.1">
             </div>
-            <button class="submit-btn" id="submitReqBtn" onclick="submitRequest()">Send ပို့မည်</button>
+
+            <div class="form-group">
+                <label>APK လင့်ခ် (Link) အပြည့်အစုံ</label>
+                <input type="url" id="reqLink" placeholder="https://...">
+            </div>
+            
+            <div class="form-group">
+                <label>သင့် Gmail အကောင့်</label>
+                <input type="email" id="reqEmail" placeholder="example@gmail.com">
+            </div>
+
+            <div class="form-group">
+                <label>အကြောင်းအရာ (Chat Box)</label>
+                <textarea id="reqMessage" rows="3" placeholder="ဒီ App နဲ့ ပတ်သက်ပြီး ရှင်းပြချက် ရေးပါ..."></textarea>
+            </div>
+
+            <button class="submit-btn" id="submitReqBtn" onclick="submitRequest()">Send တင်မည်</button>
         </div>
     </div>
 
     <script type="module">
-        // ပထမ Firebase (App Store အတွက်)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         
@@ -113,7 +130,6 @@
         const app = initializeApp(appConfig, "AppStore");
         const dbApps = getFirestore(app);
 
-        // ဒုတိယ Firebase (Chat အတွက်)
         const chatConfig = {
             apiKey: "AIzaSyDzcA6AqeUhXK-M55LmYLnviAhHz9cr0yY",
             authDomain: "mychat-e9337.firebaseapp.com",
@@ -160,28 +176,41 @@
 
         window.submitRequest = async function() {
             const name = document.getElementById('reqName').value.trim();
+            const version = document.getElementById('reqVersion').value.trim();
+            const link = document.getElementById('reqLink').value.trim();
+            const email = document.getElementById('reqEmail').value.trim();
             const message = document.getElementById('reqMessage').value.trim();
             const btn = document.getElementById('submitReqBtn');
-            if (!name || !message) { alert("အကွက်အားလုံးကို ဖြည့်ပါ။"); return; }
+
+            if (!name || !version || !link || !email || !message) { 
+                alert("အကွက်အားလုံးကို ဖြည့်ပါ။"); 
+                return; 
+            }
+            
             btn.innerText = "ပို့နေသည်...";
             try {
-                // Chat အတွက် ဒုတိယ Firebase ကို သုံးမယ်
                 import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js").then(({ addDoc, collection }) => {
                     addDoc(collection(dbChat, "messages"), {
-                        sender: name,
+                        sender: email, // Email ကို sender အဖြစ် သုံးမယ်
+                        appName: name,
+                        appVersion: version,
+                        appLink: link,
                         text: message,
                         isAdmin: false,
                         timestamp: new Date()
                     }).then(() => {
                         alert("စာပို့ပြီးပါပြီ။ Admin မှ ပြန်လည်ဖြေကြားပါမည်။");
                         document.getElementById('reqName').value = '';
+                        document.getElementById('reqVersion').value = '';
+                        document.getElementById('reqLink').value = '';
+                        document.getElementById('reqEmail').value = '';
                         document.getElementById('reqMessage').value = '';
                         closeUserForm();
                     });
                 });
             } catch (error) {
                 alert("ပို့ရာတွင် အမှားအယွင်းရှိနေပါသည်။");
-            } finally { btn.innerText = "Send ပို့မည်"; }
+            } finally { btn.innerText = "Send တင်မည်"; }
         };
         loadApps();
     </script>
