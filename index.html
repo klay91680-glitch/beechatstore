@@ -146,7 +146,6 @@
                 BeeChat Store
             </div>
             <div class="profile-btn" onclick="openProfile()">
-                <!-- Default Avatar (Empty State) -->
                 <div id="headerAvatar" class="profile-avatar" style="width: 32px; height: 32px; font-size: 16px;">U</div>
             </div>
         </div>
@@ -185,7 +184,6 @@
                     <span class="profile-label">Profile picture</span>
                 </div>
                 <div class="profile-avatar-wrapper" onclick="openEditProfile()">
-                    <!-- Default Avatar -->
                     <div class="profile-avatar" id="profileAvatar">U</div>
                     <div class="edit-avatar-badge"><span class="material-symbols-outlined">edit</span></div>
                 </div>
@@ -196,7 +194,6 @@
                     <span class="material-symbols-outlined">badge</span>
                     <div class="profile-text">
                         <span class="profile-label">Name</span>
-                        <!-- Empty by default -->
                         <span class="profile-value" id="profileName"></span>
                     </div>
                 </div>
@@ -207,7 +204,6 @@
                     <span class="material-symbols-outlined">person</span>
                     <div class="profile-text">
                         <span class="profile-label">Gender</span>
-                        <!-- Empty by default -->
                         <span class="profile-value" id="profileGender"></span>
                     </div>
                 </div>
@@ -236,7 +232,6 @@
             </div>
             <div class="form-group">
                 <label>Name</label>
-                <!-- Placeholder empty -->
                 <input type="text" id="editName" placeholder="">
             </div>
             <div class="form-group">
@@ -338,12 +333,25 @@
         const chatApp = initializeApp(chatConfig, "ChatSystem");
         const dbChat = getFirestore(chatApp);
 
+        // --- တတိယ Firebase အသစ် (Banner အတွက်) ---
+        const bannerConfig = {
+            apiKey: "AIzaSyDSiBkID25YP4X-Cu__XimXjfNDl7hy_Fw",
+            authDomain: "beechat-banner.firebaseapp.com",
+            projectId: "beechat-banner",
+            storageBucket: "beechat-banner.firebasestorage.app",
+            messagingSenderId: "50383613535",
+            appId: "1:50383613535:web:1c6156ad06ea56c9e875ea",
+            measurementId: "G-8GLB2Z19ZY"
+        };
+        const bannerApp = initializeApp(bannerConfig, "BannerSystem");
+        const dbBanner = getFirestore(bannerApp);
+
         let allApps = []; 
 
-        // --- Load Banner ---
+        // --- Load Banner (ဒီနေရာမှာ dbBanner ကို သုံးထားပါတယ်) ---
         async function loadBanner() {
             try {
-                const bannerDoc = await getDoc(doc(dbApps, "settings", "banner"));
+                const bannerDoc = await getDoc(doc(dbBanner, "settings", "banner"));
                 if (bannerDoc.exists()) {
                     const data = bannerDoc.data();
                     const bannerCard = document.getElementById('bannerCard');
@@ -469,25 +477,21 @@
 
         // --- Profile & Settings Logic ---
         
-        // 1. Load Profile (ကြိုတင်ရေးထားတာ မရှိတော့ပါ)
         function loadProfile() {
             const savedName = localStorage.getItem('userName');
             const savedGender = localStorage.getItem('userGender');
             const savedAvatar = localStorage.getItem('userAvatar');
 
-            // အမည် မရှိရင် အလွတ်ထားမယ်
             document.getElementById('profileName').innerText = savedName ? savedName : "";
             document.getElementById('profileGender').innerText = savedGender ? savedGender : "";
             
             const avatarDiv = document.getElementById('profileAvatar');
             const headerAvatar = document.getElementById('headerAvatar');
-
-            // ပုံမရှိရင် Default အဖြစ် 'U' ပြမယ်
             const defaultChar = savedName ? savedName.charAt(0).toUpperCase() : 'U';
 
             if (savedAvatar && savedAvatar.trim() !== "") {
-                avatarDiv.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-                headerAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                avatarDiv.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.outerHTML='${defaultChar}'">`;
+                headerAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" onerror="this.outerHTML='${defaultChar}'">`;
             } else {
                 avatarDiv.innerText = defaultChar;
                 headerAvatar.innerText = defaultChar;
@@ -495,7 +499,6 @@
         }
 
         window.openEditProfile = function() {
-            // ဖောင်ဖွင့်တဲ့အခါ လက်ရှိ သိမ်းထားတာရှိမှ ပြမယ်
             document.getElementById('editName').value = localStorage.getItem('userName') || '';
             document.getElementById('editGender').value = localStorage.getItem('userGender') || '';
             document.getElementById('editAvatarUrl').value = localStorage.getItem('userAvatar') || '';
@@ -511,13 +514,12 @@
             const newGender = document.getElementById('editGender').value.trim();
             const newAvatar = document.getElementById('editAvatarUrl').value.trim();
 
-            // အလွတ်ဖြစ်နေရင်လည်း အလွတ်အတိုင်း သိမ်းမယ်
             localStorage.setItem('userName', newName);
             localStorage.setItem('userGender', newGender);
             localStorage.setItem('userAvatar', newAvatar);
 
             closeEditProfile();
-            loadProfile(); // Refresh UI
+            loadProfile(); 
         };
 
         // 2. Navigation
@@ -617,9 +619,9 @@
     
     <div class="bottom-nav" id="mainNav">
         <div class="nav-item" id="nav-games" onclick="showGames()"><span class="material-symbols-outlined">sports_esports</span> Games</div>
-        <div class="nav-item active" id="nav-apps" onclick="resetView()"><div class="nav-icon-bg"><span class="material-symbols-outlined">apps</span></div> Apps</div>
+        <div class="nav-item" id="nav-apps" onclick="resetView()"><div class="nav-icon-bg"><span class="material-symbols-outlined">apps</span></div> Apps</div>
         <div class="nav-item" id="nav-search" onclick="toggleSearch(this)"><span class="material-symbols-outlined">search</span> Search</div>
         <div class="nav-item" id="nav-you" onclick="openProfile()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
-            </html>
+</html>
