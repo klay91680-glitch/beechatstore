@@ -177,7 +177,6 @@
             <h2>Personal info</h2>
         </div>
         <div class="profile-container">
-            <!-- Profile Picture Row -->
             <div class="profile-card">
                 <div class="profile-left">
                     <span class="material-symbols-outlined">add_a_photo</span>
@@ -188,7 +187,6 @@
                     <div class="edit-avatar-badge"><span class="material-symbols-outlined">edit</span></div>
                 </div>
             </div>
-            <!-- Name Row -->
             <div class="profile-card">
                 <div class="profile-left">
                     <span class="material-symbols-outlined">badge</span>
@@ -198,7 +196,6 @@
                     </div>
                 </div>
             </div>
-            <!-- Gender Row -->
             <div class="profile-card">
                 <div class="profile-left">
                     <span class="material-symbols-outlined">person</span>
@@ -208,8 +205,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Settings Button -->
             <div class="profile-card" style="cursor: pointer; justify-content: flex-start;" onclick="openSettings()">
                 <div class="profile-left">
                     <span class="material-symbols-outlined">settings</span>
@@ -249,7 +244,6 @@
                 <h3>Settings</h3>
                 <button class="close-btn" onclick="closeSettings()">×</button>
             </div>
-            
             <div class="setting-item">
                 <span class="setting-text">Dark Mode</span>
                 <label class="switch">
@@ -257,7 +251,6 @@
                     <span class="slider"></span>
                 </label>
             </div>
-
             <div class="setting-item" style="cursor: pointer;" onclick="openUploadForm()">
                 <span class="setting-text">Upload APK</span>
                 <span class="material-symbols-outlined">chevron_right</span>
@@ -333,7 +326,6 @@
         const chatApp = initializeApp(chatConfig, "ChatSystem");
         const dbChat = getFirestore(chatApp);
 
-        // --- တတိယ Firebase အသစ် (Banner အတွက်) ---
         const bannerConfig = {
             apiKey: "AIzaSyDSiBkID25YP4X-Cu__XimXjfNDl7hy_Fw",
             authDomain: "beechat-banner.firebaseapp.com",
@@ -348,7 +340,6 @@
 
         let allApps = []; 
 
-        // --- Load Banner (ဒီနေရာမှာ dbBanner ကို သုံးထားပါတယ်) ---
         async function loadBanner() {
             try {
                 const bannerDoc = await getDoc(doc(dbBanner, "settings", "banner"));
@@ -364,7 +355,6 @@
             } catch (e) { console.log("Banner load error", e); }
         }
 
-        // --- Load Apps ---
         async function loadApps(filterCategory = null) {
             const appListContainer = document.getElementById('appList');
             appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:var(--sub-text);">Loading...</div>'; 
@@ -372,7 +362,6 @@
                 const querySnapshot = await getDocs(collection(dbApps, "apps"));
                 allApps = [];
                 querySnapshot.forEach((doc) => { allApps.push({ id: doc.id, ...doc.data() }); });
-                
                 renderApps(filterCategory);
             } catch (error) {
                 appListContainer.innerHTML = '<div style="text-align:center; padding: 20px; color:red;">Error loading data.</div>';
@@ -394,9 +383,11 @@
             }
 
             filteredApps.forEach(app => {
+                // APK ဒေါင်းလုဒ်ဆွဲပြီးခြင်း ရှိ/မရှိ စစ်ဆေးခြင်း
                 const isInstalled = localStorage.getItem('downloaded_' + app.id) === 'true';
                 const btnText = isInstalled ? 'Open' : 'Install';
                 const btnClass = isInstalled ? 'action-btn installed' : 'action-btn';
+                
                 const appItem = document.createElement('div');
                 appItem.className = 'app-item';
                 appItem.setAttribute('data-name', app.name + ' ' + (app.dev || ''));
@@ -409,6 +400,7 @@
                     iconHtml = `<div class="app-icon icon-default">${iconText}</div>`;
                 }
 
+                // Install နှိပ်ရင် smartInstall ကို ခေါ်မယ်
                 appItem.innerHTML = `
                     ${iconHtml}
                     <div class="app-info">
@@ -422,7 +414,6 @@
             });
         }
 
-        // --- Chat & Submit ---
         let unsubscribeChat = null;
         window.loadChatHistory = function(email) {
             const chatContainer = document.getElementById('chatHistoryContainer');
@@ -475,8 +466,6 @@
             } catch (error) { alert("Error!"); } finally { btn.innerText = "Send တင်မည်"; }
         };
 
-        // --- Profile & Settings Logic ---
-        
         function loadProfile() {
             const savedName = localStorage.getItem('userName');
             const savedGender = localStorage.getItem('userGender');
@@ -522,24 +511,15 @@
             loadProfile(); 
         };
 
-        // 2. Navigation
-        window.openProfile = function() {
-            document.getElementById('profilePage').style.display = 'block';
-        };
-
-        window.closeProfile = function() {
-            document.getElementById('profilePage').style.display = 'none';
-        };
+        window.openProfile = function() { document.getElementById('profilePage').style.display = 'block'; };
+        window.closeProfile = function() { document.getElementById('profilePage').style.display = 'none'; };
 
         window.openSettings = function() {
             const isDark = document.body.classList.contains('dark-mode');
             document.getElementById('darkModeToggle').checked = isDark;
             document.getElementById('settingsModal').style.display = 'flex';
         };
-
-        window.closeSettings = function() {
-            document.getElementById('settingsModal').style.display = 'none';
-        };
+        window.closeSettings = function() { document.getElementById('settingsModal').style.display = 'none'; };
 
         window.toggleDarkMode = function(checkbox) {
             if (checkbox.checked) {
@@ -551,16 +531,8 @@
             }
         };
 
-        window.openUploadForm = function() {
-            closeSettings();
-            document.getElementById('userFormModal').style.display = 'flex';
-        };
-
-        window.closeUserForm = function() {
-            document.getElementById('userFormModal').style.display = 'none';
-        };
-
-        // --- Bottom Nav & Filtering ---
+        window.openUploadForm = function() { closeSettings(); document.getElementById('userFormModal').style.display = 'flex'; };
+        window.closeUserForm = function() { document.getElementById('userFormModal').style.display = 'none'; };
 
         window.showGames = function() {
             document.getElementById('sectionTitle').innerText = "Games";
@@ -579,11 +551,49 @@
             renderApps(); 
         };
 
+        // --- ဒေါင်းလုဒ်ဆွဲပြီး အလိုအလျောက် Installer ခေါ်ပေးမည့် ကုဒ် ---
         window.smartInstall = function(appId, btn, link) {
-            if (localStorage.getItem('downloaded_' + appId) === 'true') { window.open(link, '_blank'); return; }
-            btn.innerText = 'Downloading...'; btn.style.background = '#e8f0fe'; btn.style.color = '#1a73e8';
-            window.open(link, '_blank'); localStorage.setItem('downloaded_' + appId, 'true');
-            setTimeout(() => { btn.innerText = 'Open'; btn.classList.add('installed'); btn.style.background = ''; btn.style.color = ''; }, 2000);
+            // App ရဲ့ လင့်ခ်က https မဟုတ်ရင် (ဖုန်းထဲက ဖိုင်ဖြစ်နေရင်) Error ပြမယ်
+            if (!link.startsWith('http')) {
+                alert("ဒီ App ရဲ့ လင့်ခ်က မှားယွင်းနေပါတယ်။ Admin ကို ဆက်သွယ်ပါ။");
+                return;
+            }
+
+            // ဒေါင်းလုဒ်ဆွဲပြီးသားဆိုရင် ဖုန်းရဲ့ Downloads folder ကို ဖွင့်ပေးမယ်
+            if (localStorage.getItem('downloaded_' + appId) === 'true') { 
+                window.location.href = "content://com.android.providers.downloads.documents/root/downloads";
+                return; 
+            }
+
+            // UI ကို ပြောင်းခြင်း
+            btn.innerText = 'Downloading...'; 
+            btn.style.background = '#e8f0fe'; 
+            btn.style.color = '#1a73e8';
+
+            // ၁။ ဖိုင်ကို ဒေါင်းလုဒ်ဆွဲခြင်း
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.href = link;
+            downloadAnchor.setAttribute('download', ''); 
+            downloadAnchor.target = '_blank';
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            document.body.removeChild(downloadAnchor);
+
+            // ၂။ ဒေါင်းလုဒ်ဆွဲပြီးတဲ့ အခြေအနေကို သိမ်းဆည်းခြင်း
+            localStorage.setItem('downloaded_' + appId, 'true');
+
+            // ၃။ ဖိုင်တင်ပြီး ၅ စက္ကန့်အကြာမှာ Installer ကို လှမ်းခေါ်ခြင်း (Intent ကို အသုံးပြုပြီး)
+            setTimeout(() => { 
+                btn.innerText = 'Open'; 
+                btn.classList.add('installed'); 
+                btn.style.background = ''; 
+                btn.style.color = ''; 
+                
+                // ဒီနေရာမှာ ဖုန်းရဲ့ Installer ကို တိုက်ရိုက် လှမ်းခေါ်ဖို့ ကြိုးစားပါမယ်
+                // (Browser တွေရဲ့ လုံခြုံရေးစနစ်ကြောင့် တချို့ဖုန်းတွေမှာ အလိုအလျောက် မပွင့်နိုင်ပါဘူး)
+                window.location.href = link; 
+                
+            }, 5000);
         };
         
         window.toggleSearch = function(element) {
@@ -608,7 +618,6 @@
             if (hasResult || input === '') { noResult.style.display = 'none'; } else { noResult.style.display = 'block'; }
         };
 
-        // Initialize
         if(localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
         }
