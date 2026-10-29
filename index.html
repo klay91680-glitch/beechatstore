@@ -552,50 +552,34 @@
         };
 
         // --- ဒေါင်းလုဒ်ဆွဲပြီး အလိုအလျောက် Installer ခေါ်ပေးမည့် ကုဒ် ---
-        window.smartInstall = function(appId, btn, link) {
-            // App ရဲ့ လင့်ခ်က https မဟုတ်ရင် (ဖုန်းထဲက ဖိုင်ဖြစ်နေရင်) Error ပြမယ်
-            if (!link.startsWith('http')) {
-                alert("ဒီ App ရဲ့ လင့်ခ်က မှားယွင်းနေပါတယ်။ Admin ကို ဆက်သွယ်ပါ။");
-                return;
-            }
+        // BeeChat Store Android download integration
+window.smartInstall = function(appId, btn, link) {
+    if (!link || !/^https?:\/\//i.test(link)) {
+        alert("ဒီ App ရဲ့ Download Link မှားယွင်းနေပါတယ်။ Admin ကို ဆက်သွယ်ပါ။");
+        return;
+    }
 
-            // ဒေါင်းလုဒ်ဆွဲပြီးသားဆိုရင် ဖုန်းရဲ့ Downloads folder ကို ဖွင့်ပေးမယ်
-            if (localStorage.getItem('downloaded_' + appId) === 'true') { 
-                window.location.href = "content://com.android.providers.downloads.documents/root/downloads";
-                return; 
-            }
+    // Android App ထဲမှာ ဖွင့်ထားလား စစ်မယ်
+    if (window.AndroidStore && typeof window.AndroidStore.download === 'function') {
+        btn.disabled = true;
+        btn.innerText = 'Downloading 0%...';
+        btn.style.background = '#e8f0fe';
+        btn.style.color = '#1a73e8';
 
-            // UI ကို ပြောင်းခြင်း
-            btn.innerText = 'Downloading...'; 
-            btn.style.background = '#e8f0fe'; 
-            btn.style.color = '#1a73e8';
+        // Android က Download ID နဲ့ progress ကို ပြန်ပို့ပေးမယ်
+        window.AndroidStore.download(link, appId);
+        return;
+    }
 
-            // ၁။ ဖိုင်ကို ဒေါင်းလုဒ်ဆွဲခြင်း
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.href = link;
-            downloadAnchor.setAttribute('download', ''); 
-            downloadAnchor.target = '_blank';
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            document.body.removeChild(downloadAnchor);
-
-            // ၂။ ဒေါင်းလုဒ်ဆွဲပြီးတဲ့ အခြေအနေကို သိမ်းဆည်းခြင်း
-            localStorage.setItem('downloaded_' + appId, 'true');
-
-            // ၃။ ဖိုင်တင်ပြီး ၅ စက္ကန့်အကြာမှာ Installer ကို လှမ်းခေါ်ခြင်း (Intent ကို အသုံးပြုပြီး)
-            setTimeout(() => { 
-                btn.innerText = 'Open'; 
-                btn.classList.add('installed'); 
-                btn.style.background = ''; 
-                btn.style.color = ''; 
-                
-                // ဒီနေရာမှာ ဖုန်းရဲ့ Installer ကို တိုက်ရိုက် လှမ်းခေါ်ဖို့ ကြိုးစားပါမယ်
-                // (Browser တွေရဲ့ လုံခြုံရေးစနစ်ကြောင့် တချို့ဖုန်းတွေမှာ အလိုအလျောက် မပွင့်နိုင်ပါဘူး)
-                window.location.href = link; 
-                
-            }, 5000);
-        };
-        
+    // Browser မှာ ဖွင့်ထားရင် ပုံမှန် Download လုပ်မယ်
+    const a = document.createElement('a');
+    a.href = link;
+    a.download = '';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+};
         window.toggleSearch = function(element) {
             const searchContainer = document.getElementById('searchContainer');
             const searchInput = document.getElementById('searchInput');
@@ -633,4 +617,4 @@
         <div class="nav-item" id="nav-you" onclick="openProfile()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
-</html>
+                                        </html>
