@@ -553,32 +553,61 @@
 
         // --- ဒေါင်းလုဒ်ဆွဲပြီး အလိုအလျောက် Installer ခေါ်ပေးမည့် ကုဒ် ---
         // BeeChat Store Android download integration
+
 window.smartInstall = function(appId, btn, link) {
     if (!link || !/^https?:\/\//i.test(link)) {
         alert("ဒီ App ရဲ့ Download Link မှားယွင်းနေပါတယ်။ Admin ကို ဆက်သွယ်ပါ။");
         return;
     }
 
-    // Android App ထဲမှာ ဖွင့်ထားလား စစ်မယ်
-    if (window.AndroidStore && typeof window.AndroidStore.download === 'function') {
-        btn.disabled = true;
-        btn.innerText = 'Downloading 0%...';
-        btn.style.background = '#e8f0fe';
-        btn.style.color = '#1a73e8';
+    if (window.AndroidStore &&
+        typeof window.AndroidStore.download === "function") {
 
-        // Android က Download ID နဲ့ progress ကို ပြန်ပို့ပေးမယ်
+        btn.disabled = true;
+        btn.innerText = "Downloading 0%...";
+        btn.style.background = "#e8f0fe";
+        btn.style.color = "#1a73e8";
+
         window.AndroidStore.download(link, appId);
         return;
     }
 
-    // Browser မှာ ဖွင့်ထားရင် ပုံမှန် Download လုပ်မယ်
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = link;
-    a.download = '';
-    a.target = '_blank';
+    a.download = "";
     document.body.appendChild(a);
     a.click();
     a.remove();
+};
+
+// Kotlin က တကယ့် Download Progress ကို ဒီ function ဆီ ပို့ပေးမယ်။
+window.onNativeDownloadProgress = function(appId, percent, status) {
+    const item = document.querySelector(
+        '[data-app-id="' + CSS.escape(String(appId)) + '"]'
+    );
+
+    const btn = item
+        ? item.querySelector("button")
+        : null;
+
+    if (!btn) return;
+
+    if (status === "downloading") {
+        btn.disabled = true;
+        btn.innerText = percent >= 0
+            ? "Downloading " + percent + "%..."
+            : "Downloading...";
+    } else if (status === "complete") {
+        btn.disabled = false;
+        btn.innerText = "Install";
+        btn.style.background = "";
+        btn.style.color = "";
+    } else if (status === "failed") {
+        btn.disabled = false;
+        btn.innerText = "Retry Download";
+        btn.style.background = "";
+        btn.style.color = "";
+    }
 };
         window.toggleSearch = function(element) {
             const searchContainer = document.getElementById('searchContainer');
@@ -617,4 +646,4 @@ window.smartInstall = function(appId, btn, link) {
         <div class="nav-item" id="nav-you" onclick="openProfile()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
-                                        </html>
+</html>
