@@ -616,15 +616,23 @@
         window.openUploadForm = function() { closeSettings(); document.getElementById('userFormModal').style.display = 'flex'; };
         window.closeUserForm = function() { document.getElementById('userFormModal').style.display = 'none'; };
 
-        let gameRoomItems = [];
+       let gameRoomItems = [];
 function renderGameRooms() {
     const host = document.getElementById('gameRoomsList');
     if (!host) return;
     host.innerHTML = '';
     
+    // Data မရှိသေးရင် ဘာမှ မလုပ်ဘူး
+    if (!gameRoomItems || gameRoomItems.length === 0) {
+        // 10 ခန်း ကွက်လပ်ပြနေတာ ဆက်ထားမယ်
+    }
+
     for (let i = 1; i <= 10; i++) {
-        // Firebase က Data ကို ရှာဖွေခြင်း (roomId သို့မဟုတ် roomNumber ဖြစ်နိုင်သည်)
-        const room = gameRoomItems.find(x => String(x.roomId) === String(i) || String(x.roomNumber) === String(i));
+        // Firebase က Data ကို ရှာဖွေခြင်း
+        const room = gameRoomItems.find(x => {
+            const rId = x.roomId !== undefined ? x.roomId : (x.roomNumber !== undefined ? x.roomNumber : null);
+            return rId !== null && String(rId) === String(i);
+        });
         
         // Data ရှိမရှိ စစ်ဆေးခြင်း
         const name = room ? (room.name || room.gameName || room.title || '') : '';
