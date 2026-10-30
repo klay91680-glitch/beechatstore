@@ -617,27 +617,50 @@
         window.closeUserForm = function() { document.getElementById('userFormModal').style.display = 'none'; };
 
         let gameRoomItems = [];
-        function renderGameRooms() {
-            const host = document.getElementById('gameRoomsList');
-            if (!host) return;
-            host.innerHTML = '';
-            for (let i=1; i<=10; i++) {
-                // Admin က roomId နဲ့ သိမ်းထားတာကို ရှာမယ်
-const room = gameRoomItems.find(x => Number(x.roomId || x.roomNumber) === i);
-                const name = room && (room.name || room.gameName || room.title);
-                const link = room && (room.gameUrl || room.url || room.link);
-                const image = room && (room.imageUrl || room.image || room.icon);
-                const published = room && (room.published === true || room.isPublished === true);
-                const card = document.createElement('div');
-                card.className = 'game-room-card' + (name && link && published ? '' : ' game-room-empty');
-                const art = image && name && published ? `<img class="game-room-art" src="${escapeRoomAttr(image)}" alt="">` : `<div class="game-room-art"><span class="material-symbols-outlined">sports_esports</span></div>`;
-                const title = name && published ? escapeRoomText(name) : `Game Room ${String(i).padStart(2,'0')}`;
-                const desc = name && link && published ? 'ကစားရန် အသင့်ဖြစ်ပါပြီ' : 'Admin က ဂိမ်းလင့်ခ် ထည့်ရန်';
-                card.innerHTML = `${art}<div class="game-room-info"><div class="game-room-name">${title}</div><div class="game-room-desc">${desc}</div></div><button class="game-room-play" ${name && link && published ? '' : 'disabled style="opacity:.45"'}> ${name && link && published ? 'Play' : 'Empty'} </button>`;
-                const button = card.querySelector('button');
-                if (name && link && published) button.addEventListener('click', () => openGameInsideApp(link));
-                host.appendChild(card);
-            }
+function renderGameRooms() {
+    const host = document.getElementById('gameRoomsList');
+    if (!host) return;
+    host.innerHTML = '';
+    
+    for (let i = 1; i <= 10; i++) {
+        // Firebase က Data ကို ရှာဖွေခြင်း (roomId သို့မဟုတ် roomNumber ဖြစ်နိုင်သည်)
+        const room = gameRoomItems.find(x => String(x.roomId) === String(i) || String(x.roomNumber) === String(i));
+        
+        // Data ရှိမရှိ စစ်ဆေးခြင်း
+        const name = room ? (room.name || room.gameName || room.title || '') : '';
+        const link = room ? (room.gameUrl || room.url || room.link || '') : '';
+        const image = room ? (room.imageUrl || room.image || room.icon || '') : '';
+        const published = room ? (room.published === true || room.isPublished === true) : false;
+        
+        const isPlayable = name && link && published;
+
+        const card = document.createElement('div');
+        card.className = 'game-room-card' + (isPlayable ? '' : ' game-room-empty');
+        
+        const art = isPlayable && image 
+            ? `<img class="game-room-art" src="${escapeRoomAttr(image)}" alt="">` 
+            : `<div class="game-room-art"><span class="material-symbols-outlined">sports_esports</span></div>`;
+        
+        const title = isPlayable ? escapeRoomText(name) : `Game Room ${String(i).padStart(2,'0')}`;
+        const desc = isPlayable ? 'ကစားရန် အသင့်ဖြစ်ပါပြီ' : 'Admin က ဂိမ်းလင့်ခ် ထည့်ရန်';
+        
+        card.innerHTML = `
+            ${art}
+            <div class="game-room-info">
+                <div class="game-room-name">${title}</div>
+                <div class="game-room-desc">${desc}</div>
+            </div>
+            <button class="game-room-play" ${isPlayable ? '' : 'disabled style="opacity:.45"'}> 
+                ${isPlayable ? 'Play' : 'Empty'} 
+            </button>
+        `;
+        
+        const button = card.querySelector('button');
+        if (isPlayable) {
+            button.addEventListener('click', () => openGameInsideApp(link));
+        }
+        host.appendChild(card);
+    }
         }
         function escapeRoomText(value) { return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
         function escapeRoomAttr(value) { return escapeRoomText(value); }
