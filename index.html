@@ -407,6 +407,19 @@
         const bannerApp = initializeApp(bannerConfig, "BannerSystem");
         const dbBanner = getFirestore(bannerApp);
 
+        // သီးသန့် Games Firebase (BeeChatStore မူလ App/Chat/Banner Firebase များနှင့် မရောပါ)
+        const gamesConfig = {
+            apiKey: "AIzaSyCCcvsO7pEg1V-lpErzXFqeCW5QHzoH9iE",
+            authDomain: "storegame-47529.firebaseapp.com",
+            projectId: "storegame-47529",
+            storageBucket: "storegame-47529.firebasestorage.app",
+            messagingSenderId: "232244196974",
+            appId: "1:232244196974:web:af90bb61f99b5f02a9d87f",
+            measurementId: "G-8LVHF50VXB"
+        };
+        const gamesApp = initializeApp(gamesConfig, "BeeChatStoreGames");
+        const dbGames = getFirestore(gamesApp);
+
         let allApps = []; 
 
         async function loadBanner() {
@@ -649,7 +662,7 @@
             if (sourceAvatar && youAvatar) youAvatar.innerHTML = sourceAvatar.innerHTML;
             renderGameRooms();
             try {
-                const snap = await getDocs(collection(dbApps, 'gameRooms'));
+                const snap = await getDocs(collection(dbGames, 'gameRooms'));
                 gameRoomItems = snap.docs.map(d => ({ id:d.id, ...d.data() }));
                 renderGameRooms();
             } catch (e) {
@@ -800,4 +813,4 @@ window.handleNativeBack = function() {
 </script>
 
 </body>
-            </html>
+                                                         </html>
