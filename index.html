@@ -631,6 +631,28 @@ window.onNativeDownloadProgress = function(appId, percent, status) {
             if (hasResult || input === '') { noResult.style.display = 'none'; } else { noResult.style.display = 'block'; }
         };
 
+
+        // Android Back: close the top-most in-page panel first.
+        window.handleNativeBack = function() {
+            const visible = (id) => {
+                const el = document.getElementById(id);
+                if (!el) return false;
+                const style = window.getComputedStyle(el);
+                return style.display !== 'none' && style.visibility !== 'hidden';
+            };
+            if (visible('editProfileModal')) { window.closeEditProfile(); return true; }
+            if (visible('settingsModal')) { window.closeSettings(); return true; }
+            if (visible('userFormModal')) { window.closeUserForm(); return true; }
+            if (visible('profilePage')) { window.closeProfile(); return true; }
+            const search = document.getElementById('searchContainer');
+            if (search && search.classList.contains('active')) {
+                search.classList.remove('active');
+                window.resetView();
+                return true;
+            }
+            return false;
+        };
+
         if(localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
         }
@@ -646,4 +668,4 @@ window.onNativeDownloadProgress = function(appId, percent, status) {
         <div class="nav-item" id="nav-you" onclick="openProfile()"><span class="material-symbols-outlined">person</span> You</div>
     </div>
 </body>
-</html>
+                </html>
