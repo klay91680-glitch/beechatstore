@@ -622,7 +622,8 @@
             if (!host) return;
             host.innerHTML = '';
             for (let i=1; i<=10; i++) {
-                const room = gameRoomItems.find(x => Number(x.roomNumber || x.slot || x.room) === i) || gameRoomItems[i-1];
+                // Admin က roomId နဲ့ သိမ်းထားတာကို ရှာမယ်
+const room = gameRoomItems.find(x => Number(x.roomId || x.roomNumber) === i);
                 const name = room && (room.name || room.gameName || room.title);
                 const link = room && (room.gameUrl || room.url || room.link);
                 const image = room && (room.imageUrl || room.image || room.icon);
