@@ -1,1 +1,258 @@
-
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Mini MOBA 3D 5v5</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#101820;touch-action:none;user-select:none;font-family:Arial,sans-serif}canvas{display:block}
+#hud{position:fixed;inset:0;pointer-events:none;color:#fff;text-shadow:0 2px 3px #000}
+#top{position:absolute;top:7px;left:50%;transform:translateX(-50%);background:#07121bd9;border:1px solid #ffffff40;border-radius:12px;padding:6px 12px;text-align:center;min-width:190px;font-size:12px}
+#heroInfo{position:absolute;left:10px;top:8px;background:#07121bd9;border:1px solid #ffffff40;border-radius:10px;padding:8px;font-size:12px;min-width:112px}
+.bar{height:7px;background:#392b31;border-radius:8px;overflow:hidden;margin-top:4px;width:105px}.fill{height:100%;width:100%;background:#43e36e}
+#message{position:absolute;top:75px;left:50%;transform:translateX(-50%);font-weight:bold;font-size:16px;color:#ffe58a;text-align:center;white-space:nowrap}
+#leftControls{position:absolute;bottom:16px;left:15px;width:132px;height:132px;pointer-events:auto}
+#joyBase{position:absolute;inset:0;border-radius:50%;background:#dbeaff25;border:2px solid #ffffff70}
+#joyKnob{position:absolute;width:54px;height:54px;left:39px;top:39px;border-radius:50%;background:#e8f5ff99;border:2px solid #fff}
+#buttons{position:absolute;right:12px;bottom:17px;display:flex;align-items:flex-end;gap:8px;pointer-events:auto}
+.btn{border:2px solid #ffffffaa;border-radius:50%;color:#fff;background:#142d47d9;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:bold;box-shadow:0 2px 8px #0008;touch-action:none}
+#attack{width:66px;height:66px;background:#a83b35e8;font-size:12px}
+.skill{width:52px;height:52px;background:#265e9be8}.skill.big{width:62px;height:62px;background:#7b42b8ed}
+#shopBtn,#heroBtn{position:absolute;right:10px;top:65px;border-radius:9px;background:#07121bd9;border:1px solid #ffffff70;padding:7px 9px;pointer-events:auto;font-size:12px}
+#heroBtn{right:auto;left:10px;top:93px}
+#panel{position:fixed;display:none;inset:8%;background:#101e2cf5;border:2px solid #8ca9c7;border-radius:15px;color:white;z-index:5;padding:14px;overflow:auto}
+#panel h2{margin:2px 0 10px;font-size:20px}#panel .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.card{background:#24394c;border:1px solid #7890a5;border-radius:10px;padding:10px;font-size:13px}
+.card button,.panelBtn{border:0;border-radius:7px;padding:8px;margin-top:7px;background:#4b9d72;color:white;font-weight:bold}
+#closePanel{float:right;background:#a44242}#help{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:10px;opacity:.8;white-space:nowrap}
+@media(max-width:500px){#top{font-size:10px;min-width:165px}#heroInfo{font-size:10px;min-width:95px}.bar{width:90px}#buttons{gap:5px}.skill{width:46px;height:46px}.skill.big{width:55px;height:55px}#attack{width:60px;height:60px}#leftControls{width:120px;height:120px}#joyKnob{left:34px;top:34px}}
+</style>
+</head>
+<body>
+<div id="hud">
+ <div id="heroInfo"><b id="heroName">Guardian</b> · Lv <span id="level">1</span><div>HP <span id="hpText">1000/1000</span></div><div class="bar"><div id="hpFill" class="fill"></div></div><div>Gold: <span id="gold">0</span></div></div>
+ <div id="top"><b>MINI MOBA 3D · 5 vs 5</b><div>🔵 Blue <span id="blueScore">0</span> : <span id="redScore">0</span> Red 🔴</div><div id="phase">Base ကို ဖျက်ဆီးပါ</div><div style="margin-top:3px"><span style="color:#5abaff">🔵 ကိုယ့်အသင်း</span>　<span style="color:#ff7777">🔴 ရန်သူ</span></div></div>
+ <div id="message">Hero ရွေးချယ်ပါ</div>
+ <button id="shopBtn">🪙 Shop</button><button id="heroBtn">🦸 Hero ရွေး</button>
+ <div id="leftControls"><div id="joyBase"></div><div id="joyKnob"></div></div>
+ <div id="buttons"><div class="btn skill" id="skill1">Skill 1</div><div class="btn skill" id="skill2">Skill 2</div><div class="btn skill big" id="ult">ULT</div><div class="btn" id="attack">ATTACK</div></div>
+ <div id="help">Joystick = လှုပ်ရှား · လက်နှစ်ချောင်း = မြေပုံချုံ့/ချဲ့ · ATTACK = အနီးဆုံးရန်သူကိုတိုက်</div>
+</div>
+<div id="panel"><button id="closePanel" class="panelBtn">ပိတ်</button><h2 id="panelTitle">Hero ရွေးချယ်မှု</h2><div id="panelContent"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+'use strict';
+const $=id=>document.getElementById(id);
+const heroes=[
+ {name:'Guardian',role:'Tank',color:0x5bc0eb,hp:1250,atk:72,speed:5.0,desc:'သွေးများ၊ ခံနိုင်ရည်ကောင်း'},
+ {name:'Blaze',role:'Fighter',color:0xff7043,hp:980,atk:100,speed:5.7,desc:'အနီးကပ်တိုက်ခိုက်မှုအားကောင်း'},
+ {name:'Ranger',role:'Marksman',color:0xf5d547,hp:800,atk:115,speed:5.4,desc:'အဝေးကနေ တိုက်ခိုက်နိုင်'},
+ {name:'Mystic',role:'Mage',color:0xb388ff,hp:850,atk:108,speed:5.1,desc:'စွမ်းအားပြင်းသော Skill'},
+ {name:'Swift',role:'Assassin',color:0x64ff9b,hp:780,atk:130,speed:6.4,desc:'မြန်နှုန်းမြင့်၊ တိုက်ခိုက်အားပြင်း'},
+ {name:'Medic',role:'Support',color:0xff8fca,hp:920,atk:70,speed:5.2,desc:'အသင်းဖော်ကို ကူညီပေးနိုင်'},
+ {name:'Titan',role:'Tank',color:0x9da7b5,hp:1400,atk:65,speed:4.6,desc:'အလွန်သန်မာသော Tank'},
+ {name:'Storm',role:'Mage',color:0x4dd0e1,hp:820,atk:112,speed:5.3,desc:'လျှပ်စီး Skill'},
+ {name:'Archer',role:'Marksman',color:0xffb74d,hp:790,atk:118,speed:5.5,desc:'အဝေးပစ်ကျွမ်းကျင်'},
+ {name:'Shadow',role:'Assassin',color:0xe57373,hp:810,atk:125,speed:6.1,desc:'အမြန်ဝင်တိုက်ခိုက်သူ'}
+];
+let scene,camera,renderer,clock,player,chosen=0,units=[],structures=[],monsters=[],effects=[],running=false,gameOver=false,blueScore=0,redScore=0,gold=0,level=1,joy={x:0,z:0},joyActive=false,attackHeld=false,lastAttack=0,skillTimes=[0,0,0],matchStart=0;\nlet cameraZoom=1, targetMarker=null, lockedTarget=null;
+const LANE_Z=[-22,0,22], TEAM_BLUE=0,TEAM_RED=1;
+const labels=[];
+const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.75});
+const mats={grass:mat(0x367b43),lane:mat(0x9b9a86),blue:mat(0x318be5),red:mat(0xe14b4b),gold:mat(0xf7d34b),stone:mat(0x858c95),leaf:mat(0x256b38)};
+function mesh(geo,material,x,y,z){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);scene.add(o);return o}
+function bindCanvasPinch(){
+ const c=renderer&&renderer.domElement;if(!c||c.dataset.pinchBound)return;
+ c.dataset.pinchBound='1';c.style.touchAction='none';
+ const pts=new Map();let startDistance=0,startZoom=1;
+ const getDistance=()=>{const a=[...pts.values()];return a.length<2?0:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)};
+ c.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch')return;
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size===2){startDistance=getDistance();startZoom=cameraZoom;}
+ });
+ c.addEventListener('pointermove',e=>{
+  if(!pts.has(e.pointerId))return;
+  pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pts.size>=2&&startDistance>0){
+   cameraZoom=Math.max(.68,Math.min(1.65,startZoom*startDistance/Math.max(1,getDistance())));
+  }
+ });
+ const end=e=>{pts.delete(e.pointerId);if(pts.size<2)startDistance=0;};
+ c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+}
+function init3D(){
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x8bc5dc);scene.fog=new THREE.Fog(0x8bc5dc,100,210);
+ camera=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,400);
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);bindCanvasPinch();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.insertBefore(renderer.domElement,document.body.firstChild);
+ scene.add(new THREE.HemisphereLight(0xdff4ff,0x33402a,2));
+ const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(-30,65,30);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+ buildMap();buildStructures();buildMonsters();spawnTeams();\n  targetMarker=new THREE.Mesh(new THREE.RingGeometry(1.65,1.95,32),new THREE.MeshBasicMaterial({color:0xffdf45,side:THREE.DoubleSide,transparent:true,opacity:.95}));targetMarker.rotation.x=-Math.PI/2;targetMarker.position.y=.13;targetMarker.visible=false;scene.add(targetMarker);
+ clock=new THREE.Clock();matchStart=performance.now();animate();
+}
+function buildMap(){
+ mesh(new THREE.PlaneGeometry(150,105),mats.grass,0,-.18,0).rotation.x=-Math.PI/2;
+ // three lanes
+ LANE_Z.forEach(z=>{let road=mesh(new THREE.PlaneGeometry(142,10),mats.lane,0,-.08,z);road.rotation.x=-Math.PI/2;for(let x=-65;x<70;x+=10){mesh(new THREE.BoxGeometry(5,.03,.22),mat(0xd4cdb0),x,.01,z)}});
+ // river and jungle trees
+ let river=mesh(new THREE.PlaneGeometry(145,5),mat(0x4da6c7),0,-.1,11);river.rotation.x=-Math.PI/2;
+ for(let x=-62;x<=62;x+=10){for(let z of [-37,-29,-15,-7,7,17,29,37]){if(Math.abs(z-11)>5){let trunk=mesh(new THREE.CylinderGeometry(.4,.6,2.4,7),mat(0x76513a),x,.9,z);let crown=mesh(new THREE.ConeGeometry(2.1,5,7),mats.leaf,x,4,z);crown.castShadow=true;}}}
+ // rocks around base
+ for(let t=0;t<2;t++){let x=t===0?-62:62;for(let z of [-8,8])mesh(new THREE.DodecahedronGeometry(2.3),mats.stone,x,1,z)}
+}
+function makeStructure(type,team,x,z,hp){
+ const color=team===0?0x3f9fff:0xf05454;let group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
+ if(type==='tower'){
+  let base=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.8,2.4,8),mat(0x687685));base.position.y=1.2;group.add(base);
+  let shaft=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.7,3.8,8),mat(color));shaft.position.y=4.1;group.add(shaft);
+  let top=new THREE.Mesh(new THREE.OctahedronGeometry(1.7),mat(team===0?0x83d7ff:0xff9b9b));top.position.y=6.4;group.add(top);
+ }else{
+  let base=new THREE.Mesh(new THREE.CylinderGeometry(5,6,3,8),mat(color));base.position.y=1.5;group.add(base);
+  let crystal=new THREE.Mesh(new THREE.OctahedronGeometry(4),mat(team===0?0x9ee8ff:0xffc1c1));crystal.position.y=6;group.add(crystal);
+ }
+ group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+ const s={type,team,x,z,hp,maxHp:hp,mesh:group,dead:false,lastAttack:0};structures.push(s);return s;
+}
+function buildStructures(){
+ // 3 towers each lane + base on each side
+ for(let team=0;team<2;team++){
+  const sign=team===0?1:-1;
+  for(const z of LANE_Z){for(const dist of [43,25,9]){const x=team===0?-dist:dist;makeStructure('tower',team,x,z,1500)}}
+  makeStructure('base',team,team===0?-65:65,0,5000);
+ }
+}
+function makeHeroMesh(team,index,heroIndex){
+ const d=heroes[heroIndex],color=team===0?d.color:(d.color ^ 0x003333);
+ const group=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.CylinderGeometry(.72,.9,1.55,10),mat(color));body.position.y=1.45;group.add(body);const bodyTop=new THREE.Mesh(new THREE.SphereGeometry(.72,10,8),mat(color));bodyTop.position.y=2.18;group.add(bodyTop);const bodyBottom=new THREE.Mesh(new THREE.SphereGeometry(.78,10,8),mat(color));bodyBottom.position.y=.75;group.add(bodyBottom);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.62,12,10),mat(0xffd5b0));head.position.y=2.75;group.add(head);
+ const weapon=new THREE.Mesh(new THREE.BoxGeometry(.25,.25,1.8),mat(0xdfe8ef));weapon.position.set(.8,1.6,.4);weapon.rotation.x=.3;group.add(weapon);
+ const teamColor=team===0?0x168cff:0xff3030;
+ const belt=new THREE.Mesh(new THREE.TorusGeometry(.72,.18,6,16),new THREE.MeshBasicMaterial({color:teamColor}));
+ belt.rotation.x=Math.PI/2;belt.position.y=1.55;group.add(belt);
+ const ring=new THREE.Mesh(new THREE.RingGeometry(1.25,1.55,24),new THREE.MeshBasicMaterial({color:teamColor,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.08;group.add(ring);
+ // Billboard-like colored badge above the head, easy to see from the game camera.
+ const badge=new THREE.Mesh(new THREE.CircleGeometry(.58,20),new THREE.MeshBasicMaterial({color:teamColor,side:THREE.DoubleSide}));
+ badge.position.set(0,4.15,0);group.add(badge);
+ const mark=new THREE.Mesh(new THREE.BoxGeometry(.52,.09,.09),new THREE.MeshBasicMaterial({color:0xffffff}));
+ mark.position.set(0,4.15,.03);group.add(mark);
+ group.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});
+ scene.add(group);return group;
+}
+function spawnTeams(){
+ units=[];
+ // player gets blue mid lane; remaining blue bots and red bots
+ let blueSlots=[[-57,-22],[-50,0],[-57,22],[-48,-22],[-48,22]];
+ let redSlots=[[57,-22],[50,0],[57,22],[48,-22],[48,22]];
+ for(let i=0;i<5;i++){
+  let heroIndex=i===0?chosen:i+1;
+  let u=createUnit(0,heroIndex,blueSlots[i][0],blueSlots[i][1],i===0);
+  if(i===0)player=u;
+ }
+ for(let i=0;i<5;i++)createUnit(1,(i+5)%heroes.length,redSlots[i][0],redSlots[i][1],false);
+}
+function createUnit(team,heroIndex,x,z,isPlayer){
+ const d=heroes[heroIndex],unit={team,heroIndex,name:d.name,role:d.role,x,z,hp:d.hp,maxHp:d.hp,atk:d.atk,speed:d.speed,mesh:makeHeroMesh(team,units.length,heroIndex),dead:false,respawnAt:0,deaths:0,kills:0,isPlayer,level:1,lastAttack:0,target:null,skillPower:1};
+ unit.mesh.position.set(x,0,z);
+ const el=document.createElement('div');el.style.cssText='position:fixed;min-width:70px;text-align:center;pointer-events:none;font: bold 11px Arial;color:white;text-shadow:0 1px 3px #000;z-index:2;transform:translate(-50%,-50%)';
+ el.innerHTML=`<div style="background:${team===0?'#0879e8':'#d92727'};border:1px solid white;border-radius:5px;padding:2px 4px;margin-bottom:2px">${isPlayer?'YOU · ':''}${unit.name}</div><div style="height:5px;background:#222;border:1px solid #fff;border-radius:4px;overflow:hidden"><div style="height:100%;width:100%;background:${team===0?'#24a7ff':'#ff3d3d'}"></div></div>`;
+ document.body.appendChild(el);unit.label=el;unit.labelFill=el.querySelector('div div');labels.push(unit);
+ units.push(unit);return unit;
+}
+function makeMonster(type,x,z){
+ const boss=type==='boss';let group=new THREE.Group();group.position.set(x,0,z);scene.add(group);
+ const color=boss?0x8f38ba:type==='big'?0xc97b37:0x8a9a45;
+ let body=new THREE.Mesh(new THREE.DodecahedronGeometry(boss?3:type==='big'?1.8:1.2),mat(color));body.position.y=boss?3:1.3;group.add(body);
+ let eyeMat=mat(0xffef9a);for(let side of [-.5,.5]){let eye=new THREE.Mesh(new THREE.SphereGeometry(boss?.35:.18,8,8),eyeMat);eye.position.set(side,boss?3.3:1.5, boss?2.4:1);group.add(eye)}
+ scene.add(group);
+ const m={type,x,z,hp:boss?2800:type==='big'?900:350,maxHp:boss?2800:type==='big'?900:350,mesh:group,dead:false,respawnAt:0,lastAttack:0,atk:boss?85:type==='big'?42:20};monsters.push(m);
+}
+function buildMonsters(){for(let z of [-29,-15,7,25]){makeMonster('small',-12,z);makeMonster('small',12,z)}makeMonster('big',-25,13);makeMonster('big',25,-13);makeMonster('boss',0,31)}
+function showPanel(title,content){$('panelTitle').textContent=title;$('panelContent').innerHTML=content;$('panel').style.display='block';}
+function openHeroes(){showPanel('Hero ရွေးချယ်မှု','<div class="grid">'+heroes.map((h,i)=>`<div class="card"><b style="color:#${h.color.toString(16).padStart(6,'0')}">${h.name}</b><div>${h.role} · HP ${h.hp}</div><div>${h.desc}</div><button onclick="window.pickHero(${i})">${i===chosen?'လက်ရှိ Hero':'ဒီ Hero ရွေးမယ်'}</button></div>`).join('')+'</div>')}
+window.pickHero=(i)=>{if(running){$('message').textContent='Hero ကို ပွဲစမတိုင်ခင်သာ ပြောင်းနိုင်ပါတယ်';return}chosen=i;playerName=heroes[i].name;showPanel('Hero ရွေးချယ်မှု','<p>'+playerName+' ကို ရွေးထားပါတယ်။</p><button class="panelBtn" onclick="window.startGame()">ပွဲစမယ်</button>')};
+let playerName=heroes[0].name;
+window.startGame=()=>{if(!scene){init3D()}if(!running){running=true;$('panel').style.display='none';$('message').textContent='တိုက်ပွဲစတင်ပြီ!';if(player&&player.heroIndex!==chosen){player.mesh.visible=false;player.mesh.position.set(0,-100,0);player.dead=true;player.respawnAt=performance.now()+1000;player=createUnit(0,chosen,-50,0,true)} }};
+function openShop(){showPanel('🪙 ပစ္စည်းဆိုင်','<div class="grid">'+[
+ ['ဓား +25 Attack',150,'atk',25],['သံချပ် +300 Max HP',180,'hp',300],['ဖိနပ် +1.2 Speed',120,'speed',1.2],['အသက်ဆေး +35% HP',100,'heal',.35]
+].map(a=>`<div class="card"><b>${a[0]}</b><div>စျေးနှုန်း: ${a[1]} Gold</div><button onclick="window.buyItem('${a[2]}',${a[1]},${a[3]})">ဝယ်မယ်</button></div>`).join('')+'</div><p>Gold ရဖို့ ရန်သူ၊ Tower နဲ့ Jungle ကောင်တွေကို တိုက်ခိုက်ပါ။</p>')}
+window.buyItem=(type,cost,value)=>{if(!player||gold<cost){$('message').textContent='Gold မလုံလောက်ပါ';return}gold-=cost;if(type==='atk')player.atk+=value;if(type==='hp'){player.maxHp+=value;player.hp+=value}if(type==='speed')player.speed+=value;if(type==='heal')player.hp=Math.min(player.maxHp,player.hp+player.maxHp*value);updateHUD();openShop()};
+function distance(a,b){return Math.hypot(a.x-b.x,a.z-b.z)}
+function nearestEnemy(u,range=10){let candidates=units.filter(v=>v.team!==u.team&&!v.dead&&distance(u,v)<range);candidates.sort((a,b)=>distance(u,a)-distance(u,b));return candidates[0]||null}
+function damageUnit(target,amount,killer){if(!target||target.dead)return;target.hp-=amount;if(target.hp<=0){target.hp=0;target.dead=true;target.deaths++;target.respawnAt=performance.now()+Math.max(10,target.deaths*10)*1000;if(killer){killer.kills++;if(killer.team===0){blueScore++;gold+=80}else redScore++;killer.hp=Math.min(killer.maxHp,killer.hp+target.maxHp*.05);if(killer.isPlayer){level++;killer.level=level;killer.maxHp+=20;killer.hp=Math.min(killer.maxHp,killer.hp+20);saveProgress()}}target.mesh.visible=false;showMsg(target.name+' သေဆုံး · '+target.deaths*10+' စက္ကန့်နေရင် ပြန်ရှင်မယ်');updateHUD()}}
+function damageStructure(s,amount,team){if(s.dead||s.team===team)return;s.hp-=amount;makeBurst(s.x,4,s.z,team===0?0x5abaff:0xff6060);if(s.hp<=0){s.hp=0;s.dead=true;s.mesh.visible=false;if(s.type==='base'){gameOver=true;running=false;$('message').textContent=team===0?'🏆 BLUE အသင်းနိုင်ပြီ!':'🏆 RED အသင်းနိုင်ပြီ!';showPanel('ပွဲပြီးပါပြီ',`<h3>${team===0?'🔵 Blue အသင်း အနိုင်ရ!':'🔴 Red အသင်း အနိုင်ရ!'}</h3><p>Blue ${blueScore} : ${redScore} Red</p><button class="panelBtn" onclick="location.reload()">ပြန်ကစားမယ်</button>`)}}}
+function damageMonster(m,amount,killer){if(m.dead)return;m.hp-=amount;makeBurst(m.x,2,m.z,0xffd66e);if(m.hp<=0){m.hp=0;m.dead=true;m.respawnAt=performance.now()+ (m.type==='boss'?60000:30000);m.mesh.visible=false;if(killer){gold+=m.type==='boss'?300:m.type==='big'?100:35;if(killer.isPlayer)saveProgress()}updateHUD()}}
+function makeBurst(x,y,z,color){const o=new THREE.Mesh(new THREE.SphereGeometry(.5,8,8),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.8}));o.position.set(x,y,z);scene.add(o);effects.push({mesh:o,life:.35,max:.35})}
+function showMsg(t){$('message').textContent=t;setTimeout(()=>{if($('message').textContent===t)$('message').textContent=''},1800)}
+function chooseAttackTarget(u,range){
+ const enemyHeroes=units.filter(v=>v.team!==u.team&&!v.dead&&distance(u,v)<=range)
+  .sort((a,b)=>distance(u,a)-distance(u,b));
+ if(enemyHeroes.length)return enemyHeroes[0];
+ const enemyStructures=structures.filter(s=>!s.dead&&s.team!==u.team&&Math.hypot(s.x-u.x,s.z-u.z)<=range+2)
+  .sort((a,b)=>Math.hypot(a.x-u.x,a.z-u.z)-Math.hypot(b.x-u.x,b.z-u.z));
+ if(enemyStructures.length)return enemyStructures[0];
+ const jungle=monsters.filter(m=>!m.dead&&Math.hypot(m.x-u.x,m.z-u.z)<=range+3)
+  .sort((a,b)=>Math.hypot(a.x-u.x,a.z-u.z)-Math.hypot(b.x-u.x,b.z-u.z));
+ return jungle[0]||null;
+}
+function tryAttack(u,skill=0){
+ if(!u||u.dead)return;
+ const now=performance.now(),cd=skill===0?520:skill===1?4500:skill===2?7000:14000;
+ if(now-(skillTimes[skill]||0)<cd)return;
+ if(skill===0&&now-u.lastAttack<520)return;
+ if(skill===0)u.lastAttack=now;else skillTimes[skill]=now;
+ const power=u.atk*(skill===0?1:skill===1?1.8:skill===2?1.35:3.2);
+ const range=skill===0?7:skill===2?11:skill===3?14:9;
+ const target=chooseAttackTarget(u,range);
+ if(!target){showMsg('ရန်သူအနီးသို့ သွားပြီး တိုက်ခိုက်ပါ');return;}
+ lockedTarget=target;
+ if(targetMarker){targetMarker.visible=true;targetMarker.position.set(target.x,.13,target.z);}
+ if(units.includes(target)){damageUnit(target,power,u);makeBurst(target.x,2,target.z,skill===3?0xd38cff:0xffe58b);}
+ else if(structures.includes(target))damageStructure(target,power,u.team);
+ else if(monsters.includes(target))damageMonster(target,power,u);
+}
+function moveToward(u,x,z,dt){let dx=x-u.x,dz=z-u.z,len=Math.hypot(dx,dz);if(len>.1){u.x+=dx/len*u.speed*dt;u.z+=dz/len*u.speed*dt;u.mesh.rotation.y=Math.atan2(dx,dz)}}
+function aiUpdate(u,dt,now){
+ if(u.dead){if(now>=u.respawnAt){u.dead=false;u.hp=u.maxHp;u.x=u.team===0?-52:52;u.z=LANE_Z[(u.heroIndex%3)];u.mesh.visible=true;u.mesh.position.set(u.x,0,u.z)}return}
+ let enemy=nearestEnemy(u,9);
+ if(enemy){if(distance(u,enemy)>5)moveToward(u,enemy.x,enemy.z,dt);else if(now-u.lastAttack>950){u.lastAttack=now;damageUnit(enemy,u.atk*.7,u)}return}
+ let myTowers=structures.filter(s=>!s.dead&&s.team!==u.team&&s.type==='tower');
+ let lane=LANE_Z[u.heroIndex%3];let target=myTowers.sort((a,b)=>Math.hypot(a.x-u.x,a.z-u.z)-Math.hypot(b.x-u.x,b.z-u.z))[0];
+ let base=structures.find(s=>!s.dead&&s.team!==u.team&&s.type==='base');
+ if(target&&Math.hypot(target.x-u.x,target.z-u.z)<7){if(now-u.lastAttack>1100){u.lastAttack=now;damageStructure(target,u.atk*.55,u.team)}}
+ else if(base&&Math.abs(u.x-base.x)<8&&Math.abs(u.z-base.z)<9){if(now-u.lastAttack>1100){u.lastAttack=now;damageStructure(base,u.atk*.45,u.team)}}
+ else moveToward(u,target?target.x:base.x,lane,dt);
+}
+function updatePlayer(dt,now){
+ if(!player)return;
+ if(player.dead){if(now>=player.respawnAt){player.dead=false;player.hp=player.maxHp;player.x=-52;player.z=0;player.mesh.visible=true;player.mesh.position.set(player.x,0,player.z);showMsg('ပြန်လည်ရှင်သန်ပါပြီ!')}return}
+ player.x+=joy.x*player.speed*dt;player.z+=joy.z*player.speed*dt;
+ player.x=Math.max(-70,Math.min(70,player.x));player.z=Math.max(-45,Math.min(45,player.z));
+ player.mesh.rotation.y=Math.atan2(joy.x,joy.z||.001);
+ if(attackHeld&&now-lastAttack>600){lastAttack=now;tryAttack(player,0)}
+}
+function updateHUD(){if(!player)return;$('heroName').textContent=player.name;$('level').textContent=level;$('hpText').textContent=Math.ceil(player.hp)+'/'+Math.ceil(player.maxHp);$('hpFill').style.width=(100*player.hp/player.maxHp)+'%';$('gold').textContent=gold;$('blueScore').textContent=blueScore;$('redScore').textContent=redScore}
+function saveProgress(){try{localStorage.setItem('miniMoba3DProgress',JSON.stringify({chosen,level,gold}))}catch(e){}}
+function loadProgress(){try{const p=JSON.parse(localStorage.getItem('miniMoba3DProgress')||'{}');chosen=Number.isInteger(p.chosen)?p.chosen:0;level=p.level||1;gold=p.gold||0}catch(e){}}
+function animate(){requestAnimationFrame(animate);if(!renderer)return;const dt=Math.min(clock.getDelta(),.05),now=performance.now();if(running&&!gameOver){updatePlayer(dt,now);for(const u of units)if(!u.isPlayer)aiUpdate(u,dt,now);updateStructures(dt,now);updateMonsters(dt,now);for(const u of units){if(!u.dead){u.mesh.position.set(u.x,0,u.z);const scale=1+Math.sin(now/150+u.heroIndex)*.025;u.mesh.scale.setScalar(scale)}}if(player)updateHUD();}updateEffects(dt);if(player){camera.position.set(player.x+25*cameraZoom,42*cameraZoom,player.z+36*cameraZoom);camera.lookAt(player.x,0,player.z);camera.updateProjectionMatrix()}
+ for(const u of units){if(!u.label)continue;if(u.dead||!u.mesh.visible){u.label.style.display='none';continue}const v=new THREE.Vector3(u.x,4.9,u.z).project(camera);if(v.z>1){u.label.style.display='none';continue}u.label.style.display='block';u.label.style.left=((v.x+1)*innerWidth/2)+'px';u.label.style.top=((-v.y+1)*innerHeight/2)+'px';u.labelFill.style.width=(100*u.hp/u.maxHp)+'%';}
+ renderer.render(scene,camera)}
+function updateStructures(dt,now){for(const s of structures){if(s.dead)continue;let enemies=units.filter(u=>u.team!==s.team&&!u.dead&&Math.hypot(u.x-s.x,u.z-s.z)<15);if(enemies.length&&now-s.lastAttack>1000){s.lastAttack=now;let t=enemies.sort((a,b)=>Math.hypot(a.x-s.x,a.z-s.z)-Math.hypot(b.x-s.x,b.z-s.z))[0];damageUnit(t,100,null);makeBurst(t.x,2,t.z,s.team===0?0x5abaff:0xff6060)}}}
+function updateMonsters(dt,now){for(const m of monsters){if(m.dead){if(now>=m.respawnAt){m.dead=false;m.hp=m.maxHp;m.mesh.visible=true}continue}let target=units.filter(u=>!u.dead&&Math.hypot(u.x-m.x,u.z-m.z)<9).sort((a,b)=>Math.hypot(a.x-m.x,a.z-m.z)-Math.hypot(b.x-m.x,b.z-m.z))[0];if(target&&now-m.lastAttack>1200){m.lastAttack=now;damageUnit(target,m.atk,null)}}}
+function updateEffects(dt){for(let i=effects.length-1;i>=0;i--){let e=effects[i];e.life-=dt;e.mesh.scale.multiplyScalar(1+dt*4);e.mesh.material.opacity=Math.max(0,e.life/e.max);if(e.life<=0){scene.remove(e.mesh);e.mesh.geometry.dispose();e.mesh.material.dispose();effects.splice(i,1)}}}
+function bindControls(){
+ const base=$('joyBase'),knob=$('joyKnob');function setJoy(e){const r=base.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=r.width*.34;if(len>max){dx=dx/len*max;dy=dy/len*max}joy.x=dx/max;joy.z=dy/max;knob.style.left=(r.width/2-27+dx)+'px';knob.style.top=(r.height/2-27+dy)+'px'}
+ base.addEventListener('pointerdown',e=>{joyActive=true;base.setPointerCapture(e.pointerId);setJoy(e)});base.addEventListener('pointermove',e=>{if(joyActive)setJoy(e)});for(const ev of ['pointerup','pointercancel'])base.addEventListener(ev,()=>{joyActive=false;joy={x:0,z:0};knob.style.left='calc(50% - 27px)';knob.style.top='calc(50% - 27px)'});
+ $('attack').addEventListener('pointerdown',e=>{e.preventDefault();attackHeld=true;tryAttack(player,0)});for(const ev of ['pointerup','pointercancel','pointerleave'])$('attack').addEventListener(ev,()=>attackHeld=false);
+ $('skill1').addEventListener('pointerdown',e=>{e.preventDefault();tryAttack(player,1)});$('skill2').addEventListener('pointerdown',e=>{e.preventDefault();tryAttack(player,2)});$('ult').addEventListener('pointerdown',e=>{e.preventDefault();tryAttack(player,3)});
+ $('shopBtn').onclick=openShop;$('heroBtn').onclick=openHeroes;$('closePanel').onclick=()=>$('panel').style.display='none';
+ addEventListener('resize',()=>{if(camera&&renderer){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}});
+}
+loadProgress();bindControls();
+$('panel').style.display='block';
+showPanel('Mini MOBA 3D · Hero ရွေးချယ်ပါ','<p>3D 5v5 MOBA ကို စတင်ကစားရန် Hero တစ်ယောက်ရွေးပါ။ အပေါ်က Hero ရွေးချယ်မှုကို နှိပ်ပြီး ရွေးနိုင်ပါတယ်။</p><div class="grid">'+heroes.slice(0,6).map((h,i)=>`<div class="card"><b>${h.name}</b><div>${h.role} · HP ${h.hp}</div><div>${h.desc}</div><button onclick="window.pickHero(${i})">ရွေးချယ်မယ်</button></div>`).join('')+'</div>');
+})();
+</script>
+</body>
+</html>
